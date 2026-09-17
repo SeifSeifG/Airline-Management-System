@@ -3,7 +3,7 @@
 
 namespace airline {
 
-User::User(std::string id, std::string name, std::string contactInfo,
+User::User(std::string id, std::string name, contactInfo contactInfo,
            std::string username, std::string hashedPassword, Role role)
     : Person(std::move(id), std::move(name), std::move(contactInfo)),
       username_(std::move(username)),
@@ -11,10 +11,9 @@ User::User(std::string id, std::string name, std::string contactInfo,
       role_(role) {}
 
 const std::string& User::getUsername() const { return username_; }
-Role User::getRole() const { return role_; }
 
-bool User::checkPassword(const std::string& hashedAttempt) const {
-    return hashedAttempt == hashedPassword_;
+bool User::checkPassword(std::string_view hashedAttempt) const {
+    return hashedAttempt == hashedPassword_; // Returns true if identical, false otherwise}
 }
 
 }  // namespace airline

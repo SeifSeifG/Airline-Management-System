@@ -8,4 +8,8 @@ void Administrator::displayMenu() const {
     std::cout << "[Administrator menu placeholder]\n";
 }
 
+Role Administrator::getRole() const {
+    return Role::Administrator;
+}
+
 }  // namespace airline

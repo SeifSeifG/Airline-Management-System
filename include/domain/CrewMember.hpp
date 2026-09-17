@@ -7,7 +7,7 @@ namespace airline {
 // to enforce, but (per this spec) don't authenticate into the system.
 class CrewMember : public Person {
 public:
-    CrewMember(std::string id, std::string name, std::string contactInfo,
+    CrewMember(std::string id, std::string name, contactInfo contactInfo,
                std::string licenseId);
     ~CrewMember() override = default;
 

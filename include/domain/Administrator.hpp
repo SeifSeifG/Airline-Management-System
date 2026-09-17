@@ -7,6 +7,7 @@ class Administrator : public User {
 public:
     using User::User;
     void displayMenu() const override;
+    Role getRole() const override;
 };
 
 }  // namespace airline

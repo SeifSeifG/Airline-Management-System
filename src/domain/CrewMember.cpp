@@ -3,7 +3,7 @@
 
 namespace airline {
 
-CrewMember::CrewMember(std::string id, std::string name, std::string contactInfo,
+CrewMember::CrewMember(std::string id, std::string name, contactInfo contactInfo,
                         std::string licenseId)
     : Person(std::move(id), std::move(name), std::move(contactInfo)),
       licenseId_(std::move(licenseId)) {}

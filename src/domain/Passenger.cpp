@@ -5,7 +5,7 @@
 
 namespace airline {
 
-Passenger::Passenger(std::string id, std::string name, std::string contactInfo,
+Passenger::Passenger(std::string id, std::string name, contactInfo contactInfo,
                       std::string username, std::string hashedPassword)
     : User(std::move(id), std::move(name), std::move(contactInfo),
            std::move(username), std::move(hashedPassword), Role::Passenger),
@@ -16,12 +16,27 @@ Passenger::Passenger(std::string id, std::string name, std::string contactInfo,
 // complete type, which is only visible in this translation unit.
 Passenger::~Passenger() = default;
 
+void Passenger::earnLoyaltyPoints(int points) {
+    loyaltyAccount_->earnPoints(points);
+
+}
+
+bool Passenger::redeemLoyaltyPoints(int points) {
+    return loyaltyAccount_->redeem(points); // Returns true/false based on success
+}
+
+int Passenger::getLoyaltyBalance() const {
+    return loyaltyAccount_->getPoints();
+}
+
 void Passenger::displayMenu() const {
     std::cout << "[Passenger menu placeholder]\n";
 }
 
-LoyaltyAccount& Passenger::getLoyaltyAccount() {
-    return *loyaltyAccount_;
+Role Passenger::getRole() const {
+    return Role::Passenger;
 }
+
+
 
 }  // namespace airline
