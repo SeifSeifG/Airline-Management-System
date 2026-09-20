@@ -6,7 +6,8 @@ namespace airline {
 class FlightAttendant : public CrewMember {
 public:
     using CrewMember::CrewMember;
-    float maxFlightHours() const override;
+
+    Role getRole() const override;
 };
 
 }  // namespace airline

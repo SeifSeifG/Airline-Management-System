@@ -5,7 +5,7 @@
 
 namespace airline {
 
-Passenger::Passenger(std::string id, std::string name, contactInfo contactInfo,
+Passenger::Passenger(PersonId_t id, std::string name, contactInfo contactInfo,
                       std::string username, std::string hashedPassword)
     : User(std::move(id), std::move(name), std::move(contactInfo),
            std::move(username), std::move(hashedPassword), Role::Passenger),
@@ -15,6 +15,8 @@ Passenger::Passenger(std::string id, std::string name, contactInfo contactInfo,
 // forward-declared in Passenger.hpp -- the unique_ptr destructor needs the
 // complete type, which is only visible in this translation unit.
 Passenger::~Passenger() = default;
+Passenger::Passenger(Passenger&&) noexcept = default;
+Passenger& Passenger::operator=(Passenger&&) noexcept = default;
 
 void Passenger::earnLoyaltyPoints(int points) {
     loyaltyAccount_->earnPoints(points);

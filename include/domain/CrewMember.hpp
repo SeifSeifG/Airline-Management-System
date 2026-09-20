@@ -6,6 +6,9 @@ namespace airline {
 // Separate hierarchy from User: crew have an identity and flight-hour limits
 // to enforce, but (per this spec) don't authenticate into the system.
 class CrewMember : public Person {
+protected:
+    std::string licenseId_;
+    float flightHours_ = 0.0f;
 public:
     CrewMember(std::string id, std::string name, contactInfo contactInfo,
                std::string licenseId);
@@ -15,12 +18,7 @@ public:
     float getFlightHours() const;
     void addFlightHours(float hours);
 
-    // Regulatory ceiling differs by role -- see Pilot / FlightAttendant.
-    virtual float maxFlightHours() const = 0;
-
-protected:
-    std::string licenseId_;
-    float flightHours_ = 0.0f;
+    virtual Role getRole() const =  0;
 };
 
 }  // namespace airline

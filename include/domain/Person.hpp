@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "domain/Defs.hpp"
 
 namespace airline {
 
@@ -16,17 +17,13 @@ class Person {
         contactInfo contactInfo_;
 public:
 Person(
-        std::string id,                     // sink parameter: caller's string is
+        PersonId_t id,                     // sink parameter: caller's string is
                                             // either moved in (temporary/std::move)
                                             // or copied in (lvalue caller still needs)
-        std::string name,                   // same pattern as id
+        std::string name,                    // same pattern as id
         contactInfo contactInfo             // sink parameter: caller's struct is
     );    
     virtual ~Person() = default;
-
-    void setId(std::string id);
-    void setName(std::string name);
-    void setContactInfo(contactInfo contactInfo);
 
     const std::string& getId() const;
     const std::string& getName() const;

@@ -1,6 +1,6 @@
 #pragma once
 #include "domain/Person.hpp"
-#include "domain/Enums.hpp"
+#include "domain/Defs.hpp"
 
 namespace airline {
 
@@ -12,7 +12,7 @@ protected:
     Role role_;
 public:
 User(
-    std::string id,                     // sink parameter: caller's string is
+    PersonId_t id,                     // sink parameter: caller's string is
                                         // either moved in (temporary/std::move)
                                         // or copied in (lvalue caller still needs)
     std::string name,                   // same pattern as id

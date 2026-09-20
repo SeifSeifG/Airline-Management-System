@@ -1,5 +1,5 @@
 #pragma once
-#include "domain/Enums.hpp"
+#include "domain/Defs.hpp"
 
 namespace airline {
 

@@ -3,7 +3,7 @@
 
 namespace airline {
 
-User::User(std::string id, std::string name, contactInfo contactInfo,
+User::User(PersonId_t id, std::string name, contactInfo contactInfo,
            std::string username, std::string hashedPassword, Role role)
     : Person(std::move(id), std::move(name), std::move(contactInfo)),
       username_(std::move(username)),

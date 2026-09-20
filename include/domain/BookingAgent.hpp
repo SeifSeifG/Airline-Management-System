@@ -5,7 +5,7 @@ namespace airline {
 
 class BookingAgent : public User {
 public:
-    using User::User;
+    using User::User; // Inherit constructors from User
     void displayMenu() const override;
     Role getRole() const override;
 };

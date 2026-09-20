@@ -1,7 +1,10 @@
 #include "domain/FlightAttendant.hpp"
 
+
 namespace airline {
 
-float FlightAttendant::maxFlightHours() const { return 120.0f; }
+Role FlightAttendant::getRole() const{
+    return Role::FlightAttendant;
+}
 
 }  // namespace airline
