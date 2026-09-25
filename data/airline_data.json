@@ -1,0 +1,32 @@
+{
+  "aircraft": [
+    {
+      "tailNumber": "SU-GEM",
+      "model": "Airbus A320",
+      "maxRunningHours": 20000,
+      "seatLayout": {
+        "economyWindow": 10,
+        "economyMiddle": 10,
+        "economyAisle": 10,
+        "businessWindow": 4,
+        "businessMiddle": 4,
+        "first": 2
+      }
+    }
+  ],
+  "pilots": [
+    { "id": "CP001", "name": "Ahmed Hassan", "email": "ahmed@airline.com", "phone": "0100000000", "licenseId": "LIC-9981" }
+  ],
+  "flightAttendants": [
+    { "id": "FA001", "name": "Mona Adel", "email": "mona@airline.com", "phone": "0100000002", "licenseId": "LIC-5521" }
+  ],
+  "administrators": [
+    { "id": "AD001", "name": "Nour Sami", "email": "nour@airline.com", "phone": "0100000001", "username": "nsami", "password": "nour123" }
+  ],
+  "bookingAgents": [
+    { "id": "BA001", "name": "Seif Mostafa", "email": "omar@airline.com", "phone": "0100000003", "username": "oadly", "password": "omar123" }
+  ],
+  "passengers": [
+    { "id": "P001", "name": "Omar Alam", "email": "seif@example.com", "phone": "0124235235", "username": "seifm", "password": "seif123" }
+  ]
+}

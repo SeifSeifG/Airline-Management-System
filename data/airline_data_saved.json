@@ -1,0 +1,61 @@
+{
+    "administrators": [
+        {
+            "email": "nour@airline.com",
+            "id": "AD001",
+            "name": "Nour Sami",
+            "password": "nour123",
+            "phone": "0100000001",
+            "username": "nsami"
+        }
+    ],
+    "aircraft": [],
+    "bookingAgents": [
+        {
+            "email": "omar@airline.com",
+            "id": "BA001",
+            "name": "Seif Mostafa",
+            "password": "omar123",
+            "phone": "0100000003",
+            "username": "oadly"
+        }
+    ],
+    "flightAttendants": [
+        {
+            "email": "mona@airline.com",
+            "id": "FA001",
+            "licenseId": "LIC-5521",
+            "name": "Mona Adel",
+            "phone": "0100000002"
+        }
+    ],
+    "passengers": [
+        {
+            "email": "alice.smith@example.com",
+            "id": "P2",
+            "loyaltyPoints": 0,
+            "name": "Alice Smith",
+            "password": "Password123!",
+            "phone": "555-0199",
+            "username": "alicesmith"
+        },
+        {
+            "email": "seif@example.com",
+            "id": "P001",
+            "loyaltyPoints": 0,
+            "name": "Omar Alam",
+            "password": "seif123",
+            "phone": "0124235235",
+            "username": "seifm"
+        }
+    ],
+    "pilots": [
+        {
+            "email": "ahmed@airline.com",
+            "id": "CP001",
+            "licenseId": "LIC-9981",
+            "name": "Ahmed Hassan",
+            "phone": "0100000000"
+        }
+    ]
+}

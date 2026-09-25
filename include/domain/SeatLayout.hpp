@@ -87,6 +87,8 @@ public:
     // Read-only access for reporting / seat-map display.
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
 
+    int getTierSeatCount(SeatClass seatClass, SeatPosition position) const;
+    
     int getFirstClassCapacity() const;
     int getBusinessClassCapacity() const;
     int getEconomyClassCapacity() const;

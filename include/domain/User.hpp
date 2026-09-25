@@ -12,11 +12,11 @@ protected:
     Role role_;
 public:
 User(
-    PersonId_t id,                     // sink parameter: caller's string is
+    PersonId_t id,                      // sink parameter: caller's string is
                                         // either moved in (temporary/std::move)
                                         // or copied in (lvalue caller still needs)
     std::string name,                   // same pattern as id
-    contactInfo contactInfo,     // read-only borrow: User never takes
+    contactInfo contactInfo,            // read-only borrow: User never takes
                                         // ownership here, just reads it to
                                         // copy into contactInfo_ below
     std::string username,               // sink parameter, same as id/name
@@ -27,6 +27,7 @@ User(
     ~User() override = default;
 
     const std::string& getUsername() const;
+    const std::string& getHashedPassword() const;
     
     bool checkPassword(std::string_view hashedAttempt) const;
     

@@ -203,6 +203,13 @@ const std::unordered_map<SeatId_t, SeatData>& SeatLayout::getAllSeats() const {
     return seats_;
 }
 
+int SeatLayout::getTierSeatCount(SeatClass seatClass, SeatPosition position) const {
+    auto classIt = groupSeatCount_.find(seatClass);
+    if (classIt == groupSeatCount_.end()) return 0;
+    auto posIt = classIt->second.find(position);
+    return posIt != classIt->second.end() ? posIt->second : 0;
+}
+
 int SeatLayout::getFirstClassCapacity() const { return firstClassCapacity_; }
 int SeatLayout::getBusinessClassCapacity() const { return businessClassCapacity_; }
 int SeatLayout::getEconomyClassCapacity() const { return economyClassCapacity_; }

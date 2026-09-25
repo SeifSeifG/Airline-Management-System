@@ -1,42 +1,76 @@
-#include "domain/Aircraft.hpp"
-#include "domain/Flight.hpp"
-#include "domain/Passenger.hpp"
-#include "domain/SeatLayout.hpp"
+#include "app/AirlineApplication.hpp"
+#include "domain/Defs.hpp"
 #include <iostream>
-#include <memory>
 
 int main() {
     using namespace airline;
-    
-    // Initialize the new map-based SeatLayout and populate seats explicitly
-    SeatLayout seatMap;
-    seatMap.addSeats(SeatClass::Economy, SeatPosition::Window, 3);
-    seatMap.addSeats(SeatClass::Economy, SeatPosition::Middle, 3);
-    seatMap.addSeats(SeatClass::Business, SeatPosition::Window, 3);
-    seatMap.addSeats(SeatClass::Business, SeatPosition::Middle, 3);
 
-    // Smoke test only: proves the domain layer compiles and links.
-    // Real entry point (auth, menus, persistence) comes in later steps.
-    auto aircraft = std::make_shared<Aircraft>("SU-GEM", "Airbus A320", 3, std::move(seatMap));
+    AirlineApplication app;
 
-    Flight flight("MS777", "CAI", "JFK", Date{11, 1, 2, 2024}, 3, CrewRegulations{2});
-    flight.assignAircraft(aircraft);
+    // ---- Step 1: load the seed file (plaintext passwords) ----
+    std::cout << ">>> Loading seed data (plaintext passwords)...\n";
+    try {
+        app.initialize("data/airline_data.json");
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to load seed data: " << e.what() << "\n";
+        return 1;
+    }
+    app.printSummary();
 
-    Passenger passenger("P001", "Seif Mostafa", contactInfo{"seif@example.com", "0124235235"}, "Nigga1" ,"hashed_placeholder");
-    Passenger passenger2("P002", "John Doe", contactInfo{"john@example.com", "0123456789"}, "Nigga2" ,"hashed_placeholder");
+    // ---- Step 1.5: Demo registration of a new passenger ----
+    std::cout << "\n>>> Registering a new passenger...\n";
+    contactInfo newContact{"alice.smith@example.com", "555-0199"};
+    std::string newUsername = "alicesmith";
+    std::string newPassword = "Password123!";
 
-    aircraft->assignSeat(SeatClass::Economy, SeatPosition::Middle, std::make_shared<Passenger>(std::move(passenger)));
-    aircraft->assignSeat(SeatClass::Business, SeatPosition::Window, std::make_shared<Passenger>(std::move(passenger2)));
+    if (app.registerNewPassenger("Alice Smith", newContact, newUsername, newPassword)) {
+        std::cout << "Successfully registered passenger: " << newUsername << "\n";
+    } else {
+        std::cerr << "Failed to register new passenger.\n";
+        return 1;
+    }
 
-    std::cout << "Domain layer scaffolded.\n";
-    std::cout << "Flight " << flight.getFlightNumber() << " from " << flight.getOrigin()
-              << " to " << flight.getDestination() << "\n";
-    std::cout << "Passenger: " << passenger.getName() << " (" << passenger.getUsername() << ")\n";
-    std::cout << "Passenger: " << passenger2.getName() << " (" << passenger2.getUsername() << ")\n";
-    std:: cout << aircraft->getBusinessClassCapacity() << std::endl;
-    std:: cout << aircraft->getOccupiedBusinessClass() << std::endl;
-    std:: cout << aircraft->getOccupiedFirstClass() << std::endl;
-    std:: cout << aircraft->getOccupiedEconomyClass() << std::endl;
+    // Verify login on the active instance
+    if (app.login(newUsername, newPassword)) {
+        std::cout << "Login test successful on current instance.\n";
+        app.logout();
+    } else {
+        std::cerr << "Login test failed on current instance!\n";
+        return 1;
+    }
 
+    // ---- Step 2: save what was loaded and modified to a separate file ----
+    std::cout << "\n>>> Saving current state to JSON...\n";
+    try {
+        app.saveToFile("data/airline_data_saved.json");
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to save: " << e.what() << "\n";
+        return 1;
+    }
+    std::cout << "Saved to data/airline_data_saved.json\n";
+
+    // ---- Step 3: load the SAVED file into a fresh AirlineApplication ----
+    std::cout << "\n>>> Reloading the saved file into a fresh instance...\n";
+    AirlineApplication reloaded;
+    try {
+        reloaded.initialize("data/airline_data_saved.json");
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to reload saved data: " << e.what() << "\n";
+        return 1;
+    }
+    reloaded.printSummary();
+
+    // ---- Step 4: Verify the newly created passenger exists in the reloaded data ----
+    std::cout << "\n>>> Testing login for the new passenger on the reloaded instance...\n";
+    if (reloaded.login(newUsername, newPassword)) {
+        std::cout << "SUCCESS: Logged in as '" << reloaded.getCurrentUser()->getName() 
+                  << "' (" << newUsername << ") from reloaded JSON file!\n";
+        reloaded.logout();
+    } else {
+        std::cerr << "FAILURE: Could not log in with saved passenger credentials on reloaded instance.\n";
+        return 1;
+    }
+
+    std::cout << "\n>>> Round trip complete.\n";
     return 0;
 }
