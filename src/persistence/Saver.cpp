@@ -10,94 +10,15 @@
 #include "domain/Passenger.hpp"
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <sstream>
+#include <unordered_map>
 #include <stdexcept>
 
 namespace airline {
 
 using json = nlohmann::json;
 
-// Optional ADL serializer for Date if used directly with json assignment
-template <typename T>
-void to_json(json& j, const T& d) {
-    j = d.toString();
-}
-
 namespace {
-
-// Serializes a raw seats map
-json seatMapToJson(const std::unordered_map<SeatId_t, SeatData>& seatsMap) {
-    json seatsJson = json::array();
-    for (const auto& [seatId, seatData] : seatsMap) {
-        json seatEntry = {
-            {"seatId", seatId},
-            {"occupied", seatData.isOccupied()}
-        };
-
-        if (seatData.isOccupied() && seatData.passenger) {
-            seatEntry["passengerId"] = seatData.passenger->getId();
-        }
-        seatsJson.push_back(seatEntry);
-    }
-    return seatsJson;
-}
-
-// Overload 2: Accepts std::unordered_map<SeatId_t, SeatData> directly
-json seatLayoutToJson(const std::unordered_map<SeatId_t, SeatData>& seatsMap) {
-    return seatMapToJson(seatsMap);
-}
-
-json flightToJson(const std::shared_ptr<Flight>& flight) {
-    json j;
-    j["flightNumber"] = flight->getFlightNumber();
-    j["origin"] = flight->getOrigin();
-    j["destination"] = flight->getDestination();
-
-    // 1. Convert Date via std::ostringstream
-    std::ostringstream oss;
-    oss << flight->getDate();
-    j["date"] = oss.str();
-
-    j["durationHours"] = flight->getDuration();
-
-    // 2. Exact enum status matching
-    switch (flight->getStatus()) {
-        case FlightStatus::Scheduled: j["status"] = "Scheduled"; break;
-        case FlightStatus::Delayed:   j["status"] = "Delayed"; break;
-        case FlightStatus::Departed:  j["status"] = "Departed"; break;
-        case FlightStatus::Cancelled: j["status"] = "Cancelled"; break;
-    }
-
-    // Aircraft Tail Number
-    if (auto ac = flight->getAircraft()) {
-        j["aircraftTailNumber"] = ac->getTailNumber();
-    } else {
-        j["aircraftTailNumber"] = "";
-    }
-
-    // Regulations
-    j["minFlightHours"] = flight->getRegulations().minFlightHours;
-
-    // 3. Iterate pilots and flight attendants separately
-    json crewIds = json::array();
-    
-    // Adjust getter method names if different in Flight.hpp (e.g. getPilots() / getFlightAtts())
-    for (const auto& weakPilot : flight->getPilots()) {
-        if (auto pilot = weakPilot.lock()) {
-            crewIds.push_back(pilot->getId());
-        }
-    }
-    for (const auto& weakFA : flight->getFAs()) {
-        if (auto fa = weakFA.lock()) {
-            crewIds.push_back(fa->getId());
-        }
-    }
-    j["assignedCrewIds"] = crewIds;
-
-    // Flight Seats
-    j["seats"] = seatLayoutToJson(flight->getAllSeats());
-
-    return j;
-}
 
 template <typename CrewT>
 json crewToJson(const std::shared_ptr<CrewT>& member) {
@@ -111,8 +32,8 @@ json crewToJson(const std::shared_ptr<CrewT>& member) {
     };
 }
 
-template <typename StaffT>
-json staffToJson(const std::shared_ptr<StaffT>& user) {
+template <typename StaffT> // admin and booking agent
+json UserToJson(const std::shared_ptr<StaffT>& user) {
     return {
         {"id", user->getId()},
         {"name", user->getName()},
@@ -123,24 +44,95 @@ json staffToJson(const std::shared_ptr<StaffT>& user) {
     };
 }
 
+// Serializes a raw seats map
+json seatMapToJson(const std::unordered_map<SeatId_t, SeatData>& seatsMap) {
+    json seatsJson = json::array();
+    for (const auto& [seatId, seatData] : seatsMap) {
+        json seatEntry = {
+            {"seatId", seatId},
+            {"occupied", seatData.isOccupied()}
+        };
+
+        if (seatData.isOccupied()) {
+            seatEntry["passengerId"] = seatData.passenger->getId();
+        }
+        seatsJson.push_back(seatEntry);
+    }
+    return seatsJson;
+}
+
+json aircraftToJson(const std::shared_ptr<Aircraft>& aircraft) {
+    return {
+        {"tailNumber", aircraft->getTailNumber()},
+        {"model", aircraft->getModel()},
+        {"runningHours", aircraft->getRunningHours()},
+        {"maxRunningHours", aircraft->getMaxRunningHours()},
+        {"maintenanceStatus", myToString(aircraft->getMaintenanceStatus())},
+        {"seats", seatMapToJson(aircraft->getAllSeats())}
+    };
+}
+
+template <typename T>
+nlohmann::json crewIdToJson(const std::vector<std::weak_ptr<T>>& crewVector) {
+    nlohmann::json jsonArray = nlohmann::json::array();
+    for (const auto& weakCrew : crewVector) {
+        if (auto crew = weakCrew.lock()) { // Safely promote weak_ptr to shared_ptr
+            jsonArray.push_back(crew->getId());
+        }
+    }
+    return jsonArray;
+}
+
+nlohmann::json crewRegToJson(const CrewRegulations& regs) {
+    return {
+        { {"minFlightHours", regs.minFlightHours} }
+    };
+}
+
+nlohmann::json flightToJson(const std::shared_ptr<Flight>& flight) {
+    return {
+        {"flightNumber", flight->getFlightNumber()},
+        {"origin", flight->getOrigin()},
+        {"destination", flight->getDestination()},
+        {"date", myToString(flight->getDate())},
+        {"durationHours", flight->getDuration()},
+        {"aircraftTailNumber", flight->getAircraft()->getTailNumber()},
+        {"assignedPilots", crewIdToJson(flight->getPilots())},
+        {"assignedFlightAttendants", crewIdToJson(flight->getFAs())},
+        {"crewRegulations", crewRegToJson(flight->getRegulations())},
+        {"status", myToString(flight->getStatus())}
+    };
+}
+
 }  // namespace
 
 void Saver::saveToJson(const AirlineApplication& app, const std::string& filePath) {
     json root;
 
-    // ---- Aircraft ----
-    json aircraftJson = json::array();
-    for (const auto& ac : app.aircraftRepo_.getAll()) {
-        aircraftJson.push_back({
-            {"tailNumber", ac->getTailNumber()},
-            {"model", ac->getModel()},
-            {"maxRunningHours", ac->getMaxRunningHours()},
-            {"seats", seatLayoutToJson(ac->getAllSeats())}
-        });
+    // ---- Administrators ----
+    json adminsJson = json::array();
+    for (const auto& admin : app.admins_.getAll()) {
+        adminsJson.push_back(UserToJson(admin));
     }
-    root["aircraft"] = aircraftJson;
+    root["administrators"] = adminsJson;
 
-    // ---- Pilots ----
+    // ---- Booking Agents ----
+    json agentsJson = json::array();
+    for (const auto& agent : app.bookingAgents_.getAll()) {
+        agentsJson.push_back(UserToJson(agent));
+    }
+    root["bookingAgents"] = agentsJson;
+
+    // ---- Passengers ----
+    json passengersJson = json::array();
+    for (const auto& passenger : app.passengerRepo_.getAll()) {
+        json entry = UserToJson(passenger);
+        entry["loyaltyPoints"] = passenger->getLoyaltyBalance();
+        passengersJson.push_back(entry);
+    }
+    root["passengers"] = passengersJson;
+
+        // ---- Pilots ----
     json pilotsJson = json::array();
     for (const auto& p : app.pilots_.getAll()) {
         pilotsJson.push_back(crewToJson(p));
@@ -154,28 +146,12 @@ void Saver::saveToJson(const AirlineApplication& app, const std::string& filePat
     }
     root["flightAttendants"] = flightAttsJson;
 
-    // ---- Administrators ----
-    json adminsJson = json::array();
-    for (const auto& admin : app.admins_.getAll()) {
-        adminsJson.push_back(staffToJson(admin));
+    // ---- Aircraft ----
+    json aircraftJson = json::array();
+    for (const auto& ac : app.aircraftRepo_.getAll()) {
+        aircraftJson.push_back(aircraftToJson(ac));
     }
-    root["administrators"] = adminsJson;
-
-    // ---- Booking Agents ----
-    json agentsJson = json::array();
-    for (const auto& agent : app.bookingAgents_.getAll()) {
-        agentsJson.push_back(staffToJson(agent));
-    }
-    root["bookingAgents"] = agentsJson;
-
-    // ---- Passengers ----
-    json passengersJson = json::array();
-    for (const auto& passenger : app.passengerRepo_.getAll()) {
-        json entry = staffToJson(passenger);
-        entry["loyaltyPoints"] = passenger->getLoyaltyBalance();
-        passengersJson.push_back(entry);
-    }
-    root["passengers"] = passengersJson;
+    root["aircraft"] = aircraftJson;
 
     // ---- Flights ----
     json flightsJson = json::array();

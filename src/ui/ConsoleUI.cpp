@@ -590,7 +590,7 @@ void ConsoleUI::handlePassengerSearchFlights() {
     }
 
     // Display available seat tier summary
-    auto [firstAvail, bizAvail, econAvail] = selectedFlight->getAvailableSeatsPerTier();
+    auto [firstAvail, bizAvail, econAvail] = selectedFlight->getAvailableSeatsPerClass();
 
     cout << "\nAvailable Seats on Flight " << selectedFlight->getFlightNumber() << ":\n"
               << "1. First Class (" << firstAvail << " left)\n"
@@ -602,19 +602,9 @@ void ConsoleUI::handlePassengerSearchFlights() {
     if (classChoice == 1) chosenClass = SeatClass::First;
     else if (classChoice == 2) chosenClass = SeatClass::Business;
 
-    cout << "\nSelect Seat Position:\n"
-              << "1. Window\n"
-              << "2. Aisle\n"
-              << "3. Middle\n";
-
-    int posChoice = getIntInput("Select Position (1-3): ");
-    SeatPosition chosenPos = SeatPosition::Aisle;
-    if (posChoice == 1) chosenPos = SeatPosition::Window;
-    else if (posChoice == 3) chosenPos = SeatPosition::Middle;
-
     // Single system call handles find seat + assign seat + create request
     auto currentPassenger = dynamic_pointer_cast<Passenger>(app_.getCurrentUser());
-    auto bookingReq = app_.createBookingRequest(currentPassenger, selectedFlight, chosenClass, chosenPos);
+    auto bookingReq = app_.createBookingRequest(currentPassenger, selectedFlight, chosenClass);
 
     if (bookingReq) {
         cout << "\nBooking successful!\n"

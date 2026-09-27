@@ -31,8 +31,8 @@ int Aircraft::getOccupiedFirstClass() const{ return seatLayout_.getOccupiedFirst
 int Aircraft::getOccupiedBusinessClass() const{ return seatLayout_.getOccupiedBusinessClass(); }
 int Aircraft::getOccupiedEconomyClass() const{ return seatLayout_.getOccupiedEconomyClass(); }
 
-std::tuple<int, int, int> Aircraft::getAvailableSeatsPerTier() const{
-    return seatLayout_.getAvailableSeatsPerTier();
+std::tuple<int, int, int> Aircraft::getAvailableSeatsPerClass() const{
+    return seatLayout_.getAvailableSeatsPerClass();
 }
 
 
@@ -50,12 +50,12 @@ const std::unordered_map<SeatId_t, SeatData>& Aircraft::getAllSeats() const {
     return seatLayout_.getAllSeats();
 }
 
-const std::shared_ptr<SeatId_t> Aircraft::findSeat(SeatClass seatClass, SeatPosition position) const {
-    return seatLayout_.findSeat(seatClass, position);
+const std::shared_ptr<SeatId_t> Aircraft::findSeat(SeatClass seatClass) const {
+    return seatLayout_.findSeat(seatClass);
 }
 
-bool Aircraft::assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger) {
-    auto status = seatLayout_.assignSeat(seatClass, position, std::move(passenger));
+bool Aircraft::assignSeat(SeatClass seatClass, std::shared_ptr<Passenger> passenger) {
+    auto status = seatLayout_.assignSeat(seatClass, std::move(passenger));
     if (status.has_value()) {
         return true;
     } else{

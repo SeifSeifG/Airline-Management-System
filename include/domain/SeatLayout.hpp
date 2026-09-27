@@ -4,20 +4,11 @@
 #include <deque>
 #include <optional>
 #include <memory>
-#include <array>
 #include <vector>
 #include <string>
+#include <tuple>
 
 namespace airline {
-
-constexpr std::array<char, 2> eco_window_ = {'A', 'F'};
-constexpr std::array<char, 2> eco_middle_ = {'B', 'E'};
-constexpr std::array<char, 2> eco_aisle_ = {'C', 'D'};
-
-constexpr std::array<char, 2> bis_window_ = {'P', 'Q'};
-constexpr std::array<char, 2> bis_middle_ = {'S', 'L'};
-
-constexpr char firstClassId = 'X';
 
 class Passenger;
 
@@ -37,23 +28,19 @@ struct SeatData {
 struct PreExistingSeat {
     SeatId_t id;
     SeatClass seatClass;
-    SeatPosition position;
     std::shared_ptr<Passenger> passenger = nullptr;
 };
 
 class SeatLayout {
 private:
-    // Canonical storage: every seat ever created, by id. mainly for ui display later
+    // Canonical storage: every seat ever created, by decorative seat id
     std::unordered_map<SeatId_t, SeatData> seats_;
 
-    // Free seat ids per (class, position) tier. assignSeat pops the front,
-    // freeSeat pushes the back *** both O(1). ***
-    std::unordered_map<SeatClass, std::unordered_map<SeatPosition, std::deque<SeatId_t>>> available_;
+    // Free seat ids per class tier. assignSeat pops front, freeSeat pushes back (O(1)).
+    std::unordered_map<SeatClass, std::deque<SeatId_t>> available_;
 
-    // How many seats have ever been generated per tier. Only grows, used
-    // solely to continue the P1/Q1/P2/Q2 letter-row sequence correctly if
-    // addSeats is called more than once for the same tier.
-    std::unordered_map<SeatClass, std::unordered_map<SeatPosition, int>> groupSeatCount_;
+    // Counter used to generate sequential decorative IDs per class (A1, A2... / B1, B2... / C1, C2...)
+    std::unordered_map<SeatClass, int> classSeatCount_;
 
     int firstClassCapacity_ = 0;
     int businessClassCapacity_ = 0;
@@ -70,33 +57,29 @@ public:
     SeatLayout() = default;
     explicit SeatLayout(const std::vector<PreExistingSeat>& existingSeats);
 
+    // Determines class from the starting prefix letter ('A' = First, 'B' = Business, 'C' = Economy)
     static std::optional<SeatClass> getClassById(const SeatId_t& seatId);
-    static std::optional<SeatPosition> getPositionById(const SeatId_t& seatId);
 
-    // Bulk-creates `count` seats in the given tier, generating sequential
-    // ids (business+window: P1, Q1, P2, Q2, ...). CallBd once per tier
-    std::optional<std::vector<SeatId_t>> addSeats(SeatClass seatClass, SeatPosition position, int count);
+    // Bulk-creates `count` seats for a class, generating sequential IDs (e.g. A1, A2... B1, B2... C1, C2...)
+    std::optional<std::vector<SeatId_t>> addSeats(SeatClass seatClass, int count);
 
-    std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass, SeatPosition position) const;
+    // Finds the next available seat ID for a class without assigning it
+    std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass) const;
 
-    // Assigns the first available seat in (class, position). Returns the
-    // assigned seat's data (id + passenger) on success, nullopt if none
-    // are free. Fallback logic (try another tier, waitlist, etc.) is the
-    // booking agent's responsibility, not this class's.
-    std::optional<SeatData> assignSeat(SeatClass seatClass, SeatPosition position,
-                                        std::shared_ptr<Passenger> passenger);
+    // Assigns the first available seat in the specified class
+    std::optional<SeatData> assignSeat(SeatClass seatClass, std::shared_ptr<Passenger> passenger);
+
+    // Assigns a specific seat ID to a passenger
     std::optional<SeatData> assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger);
 
-    // Frees a seat by id, returning the passenger who was in it
-    // (nullptr if the id doesn't exist or wasn't occupied).
+    // Frees a seat by ID and returns the passenger who was in it
     std::shared_ptr<Passenger> freeSeat(const SeatId_t& seatId);
 
-    // Read-only access for reporting / seat-map display.
+    // Read-only access for reporting / seat-map display
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
 
-    int getTierSeatCount(SeatClass seatClass, SeatPosition position) const;
-    std::tuple<int, int, int> getAvailableSeatsPerTier() const;
-    
+    std::tuple<int, int, int> getAvailableSeatsPerClass() const;
+
     int getFirstClassCapacity() const;
     int getBusinessClassCapacity() const;
     int getEconomyClassCapacity() const;

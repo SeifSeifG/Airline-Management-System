@@ -35,8 +35,7 @@ public:
     std::shared_ptr<BookingRequest> createBookingRequest(
         const std::shared_ptr<Passenger>& passenger,
         const std::shared_ptr<Flight>& flight,
-        SeatClass seatClass,
-        SeatPosition position);
+        SeatClass seatClass);
 
     std::vector<std::shared_ptr<BookingRequest>> getPendingBookingRequests() const;
     std::vector<std::shared_ptr<BookingRequest>> getBookingRequestsForPassenger(const std::shared_ptr<Passenger>& passenger) const;

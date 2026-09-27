@@ -31,8 +31,8 @@ private:
     std::vector<std::weak_ptr<FlightAttendant>> flightAtts_;
     std::vector<std::weak_ptr<Pilot>> pilots_;
     
-    FlightStatus status_ = FlightStatus::Scheduled;
     CrewRegulations regulations_;
+    FlightStatus status_ = FlightStatus::Scheduled;
 
     bool isRegulationCompliant(std::shared_ptr<CrewMember> crewMember);
     std::shared_ptr<Aircraft> getAircraftOrThrow() const;
@@ -57,6 +57,9 @@ public:
     void setDate(const Date& date);
     void setDuration(float duration);
     void setStatus(FlightStatus status);
+    void setAircraft(std::shared_ptr<Aircraft> aircraft); // used in load
+    bool setCrewMember(std::shared_ptr<CrewMember> crew); // used in load
+
 
     // Aggregation: Input shared_ptrs are stored internally as weak_ptrs
     bool assignAircraft(std::shared_ptr<Aircraft> aircraft);
@@ -74,12 +77,12 @@ public:
     int getOccupiedEconomyClass() const;
 
     // available seats in all classes
-    std::tuple<int, int, int> getAvailableSeatsPerTier() const;
+    std::tuple<int, int, int> getAvailableSeatsPerClass() const;
 
     // SeatLayout wrappers
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
-    const std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass, SeatPosition position) const;
-    bool assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger);
+    const std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass) const;
+    bool assignSeat(SeatClass seatClass, std::shared_ptr<Passenger> passenger);
     bool assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger);
     std::shared_ptr<Passenger> freeSeat(const SeatId_t& id );
 };

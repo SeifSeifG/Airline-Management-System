@@ -46,6 +46,17 @@ void Flight::setDestination(std::string destination) { destination_ = destinatio
 void Flight::setDate(const Date& date) { date_ = date; }
 void Flight::setDuration(float duration) { duration_ = duration; }
 void Flight::setStatus(FlightStatus status) { status_ = status; }
+void Flight::setAircraft(std::shared_ptr<Aircraft> aircraft) { aircraft_ = aircraft; }
+bool Flight::setCrewMember(std::shared_ptr<CrewMember> crew){
+    if (crew->getRole() == Role::Pilot){
+        pilots_.push_back(std::dynamic_pointer_cast<Pilot>(crew)); // Stores weak_ptr internally
+        return true;
+    } else {
+        flightAtts_.push_back(std::dynamic_pointer_cast<FlightAttendant>(crew)); // Stores weak_ptr internally
+        return true;
+    }
+
+}
 
 bool Flight::assignAircraft(std::shared_ptr<Aircraft> aircraft) {
     if (!aircraft) {
@@ -132,20 +143,20 @@ int Flight::getOccupiedFirstClass() const { return getAircraftOrThrow()->getOccu
 int Flight::getOccupiedBusinessClass() const { return getAircraftOrThrow()->getOccupiedBusinessClass(); }
 int Flight::getOccupiedEconomyClass() const { return getAircraftOrThrow()->getOccupiedEconomyClass(); }
 
-std::tuple<int, int, int> Flight::getAvailableSeatsPerTier() const{
-    return getAircraftOrThrow()->getAvailableSeatsPerTier();
+std::tuple<int, int, int> Flight::getAvailableSeatsPerClass() const{
+    return getAircraftOrThrow()->getAvailableSeatsPerClass();
 }
 
 const std::unordered_map<SeatId_t, SeatData>& Flight::getAllSeats() const{
     return getAircraftOrThrow()->getAllSeats();
 }
 
-const std::shared_ptr<SeatId_t> Flight::findSeat(SeatClass seatClass, SeatPosition position) const {
-    return getAircraftOrThrow()->findSeat(seatClass, position);
+const std::shared_ptr<SeatId_t> Flight::findSeat(SeatClass seatClass ) const {
+    return getAircraftOrThrow()->findSeat(seatClass);
 }
 
-bool Flight::assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger) {
-    return getAircraftOrThrow()->assignSeat(seatClass, position, std::move(passenger));
+bool Flight::assignSeat(SeatClass seatClass, std::shared_ptr<Passenger> passenger) {
+    return getAircraftOrThrow()->assignSeat(seatClass, std::move(passenger));
 }
 
 bool Flight::assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger){

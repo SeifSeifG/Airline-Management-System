@@ -33,14 +33,13 @@ std::vector<std::shared_ptr<Flight>> BookingService::searchFlights(const std::st
 std::shared_ptr<BookingRequest> BookingService::createBookingRequest(
     const std::shared_ptr<Passenger>& passenger,
     const std::shared_ptr<Flight>& flight,
-    SeatClass seatClass,
-    SeatPosition position) 
+    SeatClass seatClass) 
 {
     if (!passenger || !flight) {
         return nullptr;
     }
 
-    auto seatId = flight->findSeat(seatClass, position);
+    auto seatId = flight->findSeat(seatClass);
     if (!seatId) {
         return nullptr;
     }

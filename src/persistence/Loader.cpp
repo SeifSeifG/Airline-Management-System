@@ -15,7 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <map>
 
 namespace airline {
 
@@ -27,20 +26,7 @@ Date parseDate(const std::string& dateStr) {
     if (dateStr.empty()) {
         return Date(0, 0, 1, 1, 1970);
     }
-    
-    // Attempt standard Date constructor via string_view
-    try {
-        return Date(dateStr);
-    } catch (...) {
-        // Fallback: manually parse YYYY-MM-DD format
-        int year = 1970, month = 1, day = 1;
-        char c1 = '-', c2 = '-';
-        std::istringstream iss(dateStr);
-        if (iss >> year >> c1 >> month >> c2 >> day) {
-            return Date(0, 0, day, month, year); // min, hour, day, month, year
-        }
-    }
-    return Date(0, 0, 1, 1, 1970);
+    return Date(std::string_view(dateStr));
 }
 
 FlightStatus parseFlightStatus(const std::string& statusStr) {
@@ -51,59 +37,41 @@ FlightStatus parseFlightStatus(const std::string& statusStr) {
     return FlightStatus::Scheduled;
 }
 
-// Rebuilds SeatLayout from either array format (Saver.cpp) or object format (legacy seed)
 SeatLayout buildSeatLayout(const json& seatJson, PassengerRepository& passengerRepo) {
     if (seatJson.is_array()) {
-        // Full snapshot format (from Saver): each entry has its own id,
-        // class, position, and -- if occupied -- which passenger. Use it
-        // directly rather than discarding it down to tier counts.
         std::vector<PreExistingSeat> existingSeats;
         for (const auto& seatEntry : seatJson) {
-            if (!seatEntry.contains("seatId")) {
-                continue;  // malformed entry -- skip, don't abort the whole aircraft
+            std::string seatId;
+            if (seatEntry.contains("seatId")) {
+                seatId = seatEntry.at("seatId").get<std::string>();
+            } else {
+                continue;
             }
-            std::string seatId = seatEntry.at("seatId").get<std::string>();
 
-            // Class/position are implicit in the id itself -- no need for
-            // the JSON to carry them separately.
             auto seatClass = SeatLayout::getClassById(seatId);
-            auto position = SeatLayout::getPositionById(seatId);
-            if (!seatClass || !position) {
-                continue;  // unrecognized id format -- skip this seat
-            }
+            if (!seatClass) continue;
 
             PreExistingSeat seat;
             seat.id = seatId;
             seat.seatClass = *seatClass;
-            seat.position = *position;
             seat.passenger = nullptr;
 
-            if (seatEntry.value("occupied", false) && seatEntry.contains("passengerId")) {
+            if (seatEntry.contains("passengerId")) {
                 std::string passengerId = seatEntry.at("passengerId").get<std::string>();
-                seat.passenger = passengerRepo.get(passengerId);  // nullptr if not found --
-                                                                    // treated as unoccupied,
-                                                                    // not an abort condition
+                seat.passenger = passengerRepo.get(passengerId);
             }
             existingSeats.push_back(std::move(seat));
         }
         return SeatLayout(existingSeats);
     } else if (seatJson.is_object()) {
-        // Legacy tier-count format (hand-authored seed data): no specific
-        // ids given, just "N seats of this tier" -- generate fresh ones.
         SeatLayout layout;
-        int ecoWindow = seatJson.value("economyWindow", 0);
-        int ecoMiddle = seatJson.value("economyMiddle", 0);
-        int ecoAisle  = seatJson.value("economyAisle", 0);
-        int bizWindow = seatJson.value("businessWindow", 0);
-        int bizMiddle = seatJson.value("businessMiddle", 0);
+        int eco = seatJson.value("economy", 0);
+        int biz = seatJson.value("business", 0);
         int firstCnt  = seatJson.value("first", 0);
 
-        if (ecoWindow > 0) layout.addSeats(SeatClass::Economy, SeatPosition::Window, ecoWindow);
-        if (ecoMiddle > 0) layout.addSeats(SeatClass::Economy, SeatPosition::Middle, ecoMiddle);
-        if (ecoAisle  > 0) layout.addSeats(SeatClass::Economy, SeatPosition::Aisle, ecoAisle);
-        if (bizWindow > 0) layout.addSeats(SeatClass::Business, SeatPosition::Window, bizWindow);
-        if (bizMiddle > 0) layout.addSeats(SeatClass::Business, SeatPosition::Middle, bizMiddle);
-        if (firstCnt  > 0) layout.addSeats(SeatClass::First, SeatPosition::Window, firstCnt);
+        if (eco > 0) layout.addSeats(SeatClass::Economy, eco);
+        if (biz > 0) layout.addSeats(SeatClass::Business, biz);
+        if (firstCnt  > 0) layout.addSeats(SeatClass::First, firstCnt);
         return layout;
     }
     return SeatLayout{};
@@ -124,7 +92,7 @@ const json& requireArray(const json& root, const char* key) {
     return root.at(key);
 }
 
-}  // namespace
+} // namespace
 
 void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) {
     std::ifstream in(filePath);
@@ -139,31 +107,91 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
         throw std::runtime_error(std::string("malformed JSON in data file: ") + e.what());
     }
 
-    // ---- Aircraft ----
-    for (const auto& entry : requireArray(root, "aircraft")) {
-        try {
-            std::string tailNumber = entry.at("tailNumber").get<std::string>();
-            std::string model = entry.at("model").get<std::string>();
-            float maxHours = entry.at("maxRunningHours").get<float>();
-            
-            const json& seatData = entry.contains("seats") ? entry.at("seats") : entry.at("seatLayout");
-            SeatLayout layout = buildSeatLayout(seatData, app.passengerRepo_);
 
-            auto aircraft = std::make_shared<Aircraft>(tailNumber, model, maxHours, std::move(layout));
-            app.aircraftRepo_.add(tailNumber, aircraft);
+    // ---- 1. Administrators ----
+    for (const auto& entry : requireArray(root, "administrators")) {
+        try {
+            std::string id = entry.at("id").get<std::string>();
+            std::string name = entry.at("name").get<std::string>();
+            contactInfo contact = buildContactInfo(entry);
+            std::string username = entry.at("username").get<std::string>();
+            std::string password;
+            if (entry.contains("passwordHash")) {
+                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
+                password = PasswordHasher::deHashPassword(hashedPassword);
+            } else if (entry.contains("password")) {
+                password = entry.at("password").get<std::string>();
+            } else {
+                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
+            }
+
+            auto admin = std::make_shared<Administrator>(id, name, contact, username,
+                                                        password, Role::Administrator);
+            app.admins_.add(id, admin);
         } catch (const std::exception& e) {
-            std::cerr << "Skipping malformed aircraft entry: " << e.what() << "\n";
+            std::cerr << "Skipping malformed administrator entry: " << e.what() << "\n";
         }
     }
 
-    // ---- Pilots ----
+    // ---- 2. Booking Agents ----
+    for (const auto& entry : requireArray(root, "bookingAgents")) {
+        try {
+            std::string id = entry.at("id").get<std::string>();
+            std::string name = entry.at("name").get<std::string>();
+            contactInfo contact = buildContactInfo(entry);
+            std::string username = entry.at("username").get<std::string>();
+            std::string password;
+            if (entry.contains("passwordHash")) {
+                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
+                password = PasswordHasher::deHashPassword(hashedPassword);
+            } else if (entry.contains("password")) {
+                password = entry.at("password").get<std::string>();
+            } else {
+                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
+            }
+
+            auto agent = std::make_shared<BookingAgent>(id, name, contact, username,
+                                                        password, Role::BookingAgent);
+            app.bookingAgents_.add(id, agent);
+        } catch (const std::exception& e) {
+            std::cerr << "Skipping malformed booking agent entry: " << e.what() << "\n";
+        }
+    }
+
+    // ---- 3. Passengers (Must be loaded BEFORE Aircraft & Flights) ----
+    for (const auto& entry : requireArray(root, "passengers")) {
+        try {
+            std::string id = entry.at("id").get<std::string>();
+            std::string name = entry.at("name").get<std::string>();
+            contactInfo contact = buildContactInfo(entry);
+            std::string username = entry.at("username").get<std::string>();
+            std::string password;
+            if (entry.contains("passwordHash")) {
+                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
+                password = PasswordHasher::deHashPassword(hashedPassword);
+            } else if (entry.contains("password")) {
+                password = entry.at("password").get<std::string>();
+            } else {
+                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
+            }
+
+            auto passenger = std::make_shared<Passenger>(id, name, contact, username, password);
+            passenger->earnLoyaltyPoints(entry.at("loyaltyPoints").get<int>());
+
+            app.passengerRepo_.add(id, passenger);
+        } catch (const std::exception& e) {
+            std::cerr << "Skipping malformed passenger entry: " << e.what() << "\n";
+        }
+    }
+
+    // ---- 4. Pilots ----
     for (const auto& entry : requireArray(root, "pilots")) {
         try {
             std::string id = entry.at("id").get<std::string>();
             std::string name = entry.at("name").get<std::string>();
-            std::string licenseId = entry.at("licenseId").get<std::string>();
             contactInfo contact = buildContactInfo(entry);
-            float flightHours = entry.value("flightHours", 0.0f); 
+            std::string licenseId = entry.at("licenseId").get<std::string>();
+            float flightHours = entry.value("flightHours", 0.0f);
 
             auto pilot = std::make_shared<Pilot>(id, name, contact, licenseId, flightHours);
             app.pilots_.add(id, pilot);
@@ -172,14 +200,14 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
         }
     }
 
-    // ---- Flight Attendants ----
+    // ---- 5. Flight Attendants ----
     for (const auto& entry : requireArray(root, "flightAttendants")) {
         try {
             std::string id = entry.at("id").get<std::string>();
             std::string name = entry.at("name").get<std::string>();
-            std::string licenseId = entry.at("licenseId").get<std::string>();
             contactInfo contact = buildContactInfo(entry);
-            float flightHours = entry.value("flightHours", 0.0f); 
+            std::string licenseId = entry.at("licenseId").get<std::string>();
+            float flightHours = entry.value("flightHours", 0.0f);
 
             auto fa = std::make_shared<FlightAttendant>(id, name, contact, licenseId, flightHours);
             app.flightAtts_.add(id, fa);
@@ -188,94 +216,45 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
         }
     }
 
-    // ---- Administrators ----
-    for (const auto& entry : requireArray(root, "administrators")) {
+    // ---- 6. Aircraft ----
+    for (const auto& entry : requireArray(root, "aircraft")) {
         try {
-            std::string id = entry.at("id").get<std::string>();
-            std::string name = entry.at("name").get<std::string>();
-            std::string username = entry.at("username").get<std::string>();
-            std::string hashedPassword;
-            if (entry.contains("passwordHash")) {
-                hashedPassword = entry.at("passwordHash").get<std::string>();
-            } else if (entry.contains("password")) {
-                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
-            } else {
-                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
-            }
-            contactInfo contact = buildContactInfo(entry);
+            std::string tailNumber = entry.at("tailNumber").get<std::string>();
+            std::string model = entry.at("model").get<std::string>();
+            float runningHours = entry.at("runningHours").get<float>();
+            float maxRunningHours = entry.at("maxRunningHours").get<float>();
 
-            auto admin = std::make_shared<Administrator>(id, name, contact, username,
-                                                        hashedPassword, Role::Administrator);
-            app.admins_.add(id, admin);
+
+            const json& seatData = entry.contains("seats") ? entry.at("seats") : entry.at("seatLayout");
+            SeatLayout layout = buildSeatLayout(seatData, app.passengerRepo_);
+
+            auto aircraft = std::make_shared<Aircraft>(tailNumber, model, maxRunningHours, std::move(layout));
+            aircraft->addRunningHours(runningHours);
+            app.aircraftRepo_.add(tailNumber, aircraft);
         } catch (const std::exception& e) {
-            std::cerr << "Skipping malformed administrator entry: " << e.what() << "\n";
+            std::cerr << "Skipping malformed aircraft entry: " << e.what() << "\n";
         }
     }
 
-    // ---- Booking Agents ----
-    for (const auto& entry : requireArray(root, "bookingAgents")) {
-        try {
-            std::string id = entry.at("id").get<std::string>();
-            std::string name = entry.at("name").get<std::string>();
-            std::string username = entry.at("username").get<std::string>();
-            std::string hashedPassword;
-            if (entry.contains("passwordHash")) {
-                hashedPassword = entry.at("passwordHash").get<std::string>();
-            } else if (entry.contains("password")) {
-                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
-            } else {
-                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
-            }
-            contactInfo contact = buildContactInfo(entry);
-
-            auto agent = std::make_shared<BookingAgent>(id, name, contact, username,
-                                                        hashedPassword, Role::BookingAgent);
-            app.bookingAgents_.add(id, agent);
-        } catch (const std::exception& e) {
-            std::cerr << "Skipping malformed booking agent entry: " << e.what() << "\n";
-        }
-    }
-
-    // ---- Passengers ----
-    for (const auto& entry : requireArray(root, "passengers")) {
-        try {
-            std::string id = entry.at("id").get<std::string>();
-            std::string name = entry.at("name").get<std::string>();
-            std::string username = entry.at("username").get<std::string>();
-            std::string hashedPassword;
-            if (entry.contains("passwordHash")) {
-                hashedPassword = entry.at("passwordHash").get<std::string>();
-            } else if (entry.contains("password")) {
-                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
-            } else {
-                throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
-            }
-            contactInfo contact = buildContactInfo(entry);
-
-            auto passenger = std::make_shared<Passenger>(id, name, contact, username, hashedPassword);
-            if (entry.contains("loyaltyPoints")) {
-                passenger->earnLoyaltyPoints(entry.at("loyaltyPoints").get<int>());
-            }
-            app.passengerRepo_.add(id, passenger);
-        } catch (const std::exception& e) {
-            std::cerr << "Skipping malformed passenger entry: " << e.what() << "\n";
-        }
-    }
-
-    // ---- Flights ----
+    // ---- 7. Flights ----
     if (root.contains("flights") && root.at("flights").is_array()) {
         for (const auto& entry : root.at("flights")) {
             try {
                 std::string flightNumber = entry.at("flightNumber").get<std::string>();
                 std::string origin = entry.at("origin").get<std::string>();
                 std::string destination = entry.at("destination").get<std::string>();
+                
+                // Parse Date (works with parseDate or fromString<Date>(...))
                 Date date = parseDate(entry.at("date").get<std::string>());
                 float duration = entry.value("durationHours", 0.0f);
 
-                // Pass regulations (uses default CrewRegulations if not specified in json)
-                CrewRegulations regs{0}; // any value
-                if (entry.contains("minFlightHours")) {
-                    regs.minFlightHours = entry.at("minFlightHours").get<float>();
+                // Parse crew regulations from the array format: [{"minFlightHours": 1}]
+                CrewRegulations regs{0};
+                if (entry.contains("crewRegulations") && entry.at("crewRegulations").is_array() && !entry.at("crewRegulations").empty()) {
+                    const auto& regObj = entry.at("crewRegulations")[0];
+                    if (regObj.contains("minFlightHours")) {
+                        regs.minFlightHours = regObj.at("minFlightHours").get<int>();
+                    }
                 }
 
                 auto flight = std::make_shared<Flight>(flightNumber, origin, destination, date, duration, regs);
@@ -284,37 +263,31 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                     flight->setStatus(parseFlightStatus(entry.at("status").get<std::string>()));
                 }
 
-                // Attach Aircraft
                 if (entry.contains("aircraftTailNumber")) {
                     std::string tail = entry.at("aircraftTailNumber").get<std::string>();
                     if (!tail.empty()) {
                         if (auto ac = app.aircraftRepo_.get(tail)) {
-                            flight->assignAircraft(ac);
+                            flight->setAircraft(ac);
                         }
                     }
                 }
 
-                // Assign Crew Members
-                if (entry.contains("assignedCrewIds") && entry.at("assignedCrewIds").is_array()) {
-                    for (const auto& crewIdJson : entry.at("assignedCrewIds")) {
-                        std::string crewId = crewIdJson.get<std::string>();
-                        if (auto pilot = app.pilots_.get(crewId)) {
-                            flight->assignCrewMember(pilot);
-                        } else if (auto fa = app.flightAtts_.get(crewId)) {
-                            flight->assignCrewMember(fa);
+                // Parse assigned pilots from "assignedPilots"
+                if (entry.contains("assignedPilots") && entry.at("assignedPilots").is_array()) {
+                    for (const auto& pilotIdJson : entry.at("assignedPilots")) {
+                        std::string pilotId = pilotIdJson.get<std::string>();
+                        if (auto pilot = app.pilots_.get(pilotId)) {
+                            flight->setCrewMember(pilot);
                         }
                     }
                 }
 
-                // Restore Occupied Seats & Passenger Bookings
-                if (entry.contains("seats") && entry.at("seats").is_array()) {
-                    for (const auto& seatEntry : entry.at("seats")) {
-                        if (seatEntry.value("occupied", false) && seatEntry.contains("passengerId")) {
-                            std::string seatId = seatEntry.at("seatId").get<std::string>();
-                            std::string passengerId = seatEntry.at("passengerId").get<std::string>();
-                            if (auto passenger = app.passengerRepo_.get(passengerId)) {
-                                flight->assignSeat(seatId, passenger);
-                            }
+                // Parse assigned flight attendants from "assignedFlightAttendants"
+                if (entry.contains("assignedFlightAttendants") && entry.at("assignedFlightAttendants").is_array()) {
+                    for (const auto& faIdJson : entry.at("assignedFlightAttendants")) {
+                        std::string faId = faIdJson.get<std::string>();
+                        if (auto fa = app.flightAtts_.get(faId)) {
+                            flight->setCrewMember(fa);
                         }
                     }
                 }

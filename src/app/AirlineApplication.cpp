@@ -65,10 +65,9 @@ std::vector<std::shared_ptr<Flight>> AirlineApplication::searchFlights(const std
 std::shared_ptr<BookingRequest> AirlineApplication::createBookingRequest(
     const std::shared_ptr<Passenger>& passenger, 
     const std::shared_ptr<Flight>& flight,
-    SeatClass seatClass,
-    SeatPosition position) 
+    SeatClass seatClass) 
 {
-    return bookingService_.createBookingRequest(passenger, flight, seatClass, position);
+    return bookingService_.createBookingRequest(passenger, flight, seatClass);
 }
 
 std::vector<std::shared_ptr<BookingRequest>> AirlineApplication::getBookingRequestsForPassenger(const std::shared_ptr<Passenger>& passenger) const {

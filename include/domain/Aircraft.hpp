@@ -33,7 +33,7 @@ public:
     int getOccupiedEconomyClass() const;
     
     // available seats in all classes
-    std::tuple<int, int, int> getAvailableSeatsPerTier() const;
+    std::tuple<int, int, int> getAvailableSeatsPerClass() const;
 
     // maintenance related functions
     MaintenanceStatus getMaintenanceStatus() const;
@@ -45,8 +45,8 @@ public:
 
     // SeatLayout wrappers
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
-    const std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass, SeatPosition position) const;
-    bool assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger);
+    const std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass) const;
+    bool assignSeat(SeatClass seatClass, std::shared_ptr<Passenger> passenger);
     bool assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger);
     std::shared_ptr<Passenger> freeSeat(const SeatId_t& id );
 };
