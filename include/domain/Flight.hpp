@@ -13,6 +13,8 @@ struct CrewRegulations{
 
 class Aircraft;
 class CrewMember;
+class FlightAttendant;
+class Pilot;
 class SeatLayout;
 class Passenger;
 
@@ -26,7 +28,8 @@ private:
     
     // Non-owning weak references
     std::weak_ptr<Aircraft> aircraft_;
-    std::vector<std::weak_ptr<CrewMember>> crew_;
+    std::vector<std::weak_ptr<FlightAttendant>> flightAtts_;
+    std::vector<std::weak_ptr<Pilot>> pilots_;
     
     FlightStatus status_ = FlightStatus::Scheduled;
     CrewRegulations regulations_;
@@ -36,18 +39,28 @@ private:
 public:
     Flight(std::string flightNumber, std::string origin, std::string destination,
            Date date, float duration, CrewRegulations reg);
+    ~Flight();
 
     const std::string& getFlightNumber() const;
     const std::string& getOrigin() const;
     const std::string& getDestination() const;
+    std::shared_ptr<Aircraft> getAircraft() const;
     Date getDate() const;
     float getDuration() const;
     FlightStatus getStatus() const;
+    const CrewRegulations& getRegulations() const;
+    const std::vector<std::weak_ptr<FlightAttendant>> getFAs() const;
+    const std::vector<std::weak_ptr<Pilot>> getPilots() const;
+
+    void setOrigin(std::string origin);
+    void setDestination(std::string destination);
+    void setDate(const Date& date);
+    void setDuration(float duration);
     void setStatus(FlightStatus status);
 
     // Aggregation: Input shared_ptrs are stored internally as weak_ptrs
     bool assignAircraft(std::shared_ptr<Aircraft> aircraft);
-    bool assignCrew(std::shared_ptr<CrewMember> crewMember);
+    bool assignCrewMember(std::shared_ptr<CrewMember> crew);
     bool removeCrewMember(const std::string& licenseId);
 
     // Tier capacity getters
@@ -60,10 +73,14 @@ public:
     int getOccupiedBusinessClass() const;
     int getOccupiedEconomyClass() const;
 
+    // available seats in all classes
+    std::tuple<int, int, int> getAvailableSeatsPerTier() const;
+
     // SeatLayout wrappers
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
     const std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass, SeatPosition position) const;
     bool assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger);
+    bool assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger);
     std::shared_ptr<Passenger> freeSeat(const SeatId_t& id );
 };
 

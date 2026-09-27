@@ -1,6 +1,7 @@
 #include "domain/SeatLayout.hpp"
 #include <cctype>
 #include <utility>
+#include <algorithm>
 
 namespace {
 
@@ -33,6 +34,43 @@ std::optional<std::array<char, 2>> lettersFor(airline::SeatClass seatClass, airl
 }  // namespace
 
 namespace airline {
+
+SeatLayout::SeatLayout(const std::vector<PreExistingSeat>& existingSeats) {
+    for (const auto& seat : existingSeats) {
+        seats_[seat.id] = SeatData{seat.passenger};
+        bumpCapacity(seat.seatClass, 1);
+
+        if (seat.passenger) {
+            bumpOccupied(seat.seatClass, 1);
+        } else {
+            available_[seat.seatClass][seat.position].push_back(seat.id);
+        }
+
+        // Reconstruct groupSeatCount_ from the id itself, so a LATER
+        // addSeats() call on this tier continues the sequence instead of
+        // restarting from 0 and colliding with these reloaded ids.
+        auto lettersOpt = lettersFor(seat.seatClass, seat.position);
+        if (lettersOpt && !seat.id.empty()) {
+            const auto& letters = *lettersOpt;
+            char letter = std::toupper(static_cast<unsigned char>(seat.id.back()));
+            std::string rowPart = seat.id.substr(0, seat.id.size() - 1);
+
+            try {
+                int rowNumber = std::stoi(rowPart);
+                // Reverse of addSeats' formula. NOTE: for First class,
+                // letters[0] == letters[1] (both 'X') -- see the caveat below.
+                int letterIndex = (letter == letters[0]) ? 0 : 1;
+                int impliedSeatsPerTier = (rowNumber - 1) * static_cast<int>(letters.size()) + letterIndex + 1;
+
+                int& seatsPerTier = groupSeatCount_[seat.seatClass][seat.position];
+                seatsPerTier = std::max(seatsPerTier, impliedSeatsPerTier);
+            } catch (...) {
+                // malformed id (non-numeric row part) -- skip sequence
+                // tracking for this seat rather than aborting the reload
+            }
+        }
+    }
+}
 
 std::optional<SeatClass> SeatLayout::getClassById(const SeatId_t& seatId) {
     if (seatId.empty()) return std::nullopt;
@@ -182,6 +220,35 @@ std::optional<SeatData> SeatLayout::assignSeat(SeatClass seatClass, SeatPosition
     return seatData;  // copy: cheap -- one shared_ptr + one string
 }
 
+std::optional<SeatData> SeatLayout::assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger) {
+    auto it = seats_.find(id);
+    if (it == seats_.end()) {
+        return std::nullopt;  // no such seat -- .at() would throw here instead; find() lets
+                               // this overload fail the same way the other one does (nullopt),
+                               // rather than throwing where its sibling doesn't
+    }
+    auto& seatData = it->second;
+    if (seatData.passenger != nullptr) {
+        return std::nullopt;  // already occupied -- refuse, don't overwrite
+    }
+
+    auto seatClass = getClassById(id);
+    auto position = getPositionById(id);
+    seatData.assignPassenger(std::move(passenger));
+    if (seatClass) {
+        bumpOccupied(seatClass.value(), +1);
+    }
+
+    // Keep available_ in sync -- without this, the same id could still be
+    // handed out by the class/position overload above.
+    if (seatClass && position) {
+        auto& freeQueue = available_[seatClass.value()][position.value()];
+        freeQueue.erase(std::remove(freeQueue.begin(), freeQueue.end(), id), freeQueue.end());
+    }
+
+    return seatData;
+}
+
 std::shared_ptr<Passenger> SeatLayout::freeSeat(const SeatId_t& seatId) {
     auto it = seats_.find(seatId);
     if (it == seats_.end() || !it->second.isOccupied()) {
@@ -208,6 +275,14 @@ int SeatLayout::getTierSeatCount(SeatClass seatClass, SeatPosition position) con
     if (classIt == groupSeatCount_.end()) return 0;
     auto posIt = classIt->second.find(position);
     return posIt != classIt->second.end() ? posIt->second : 0;
+}
+
+std::tuple<int, int, int> SeatLayout::getAvailableSeatsPerTier() const {
+    int availableFirst = std::max(0, getFirstClassCapacity() - getOccupiedFirstClass());
+    int availableBusiness = std::max(0, getBusinessClassCapacity() - getOccupiedBusinessClass());
+    int availableEconomy = std::max(0, getEconomyClassCapacity() - getOccupiedEconomyClass());
+
+    return {availableFirst, availableBusiness, availableEconomy};
 }
 
 int SeatLayout::getFirstClassCapacity() const { return firstClassCapacity_; }

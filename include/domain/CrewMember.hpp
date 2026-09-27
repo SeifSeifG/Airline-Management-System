@@ -11,7 +11,7 @@ protected:
     float flightHours_ = 0.0f;
 public:
     CrewMember(std::string id, std::string name, contactInfo contactInfo,
-               std::string licenseId);
+               std::string licenseId, float minFlightHrs);
     ~CrewMember() override = default;
 
     const std::string& getLicenseId() const;

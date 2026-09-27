@@ -1,32 +1,224 @@
 {
-  "aircraft": [
-    {
-      "tailNumber": "SU-GEM",
-      "model": "Airbus A320",
-      "maxRunningHours": 20000,
-      "seatLayout": {
-        "economyWindow": 10,
-        "economyMiddle": 10,
-        "economyAisle": 10,
-        "businessWindow": 4,
-        "businessMiddle": 4,
-        "first": 2
-      }
-    }
-  ],
-  "pilots": [
-    { "id": "CP001", "name": "Ahmed Hassan", "email": "ahmed@airline.com", "phone": "0100000000", "licenseId": "LIC-9981" }
-  ],
-  "flightAttendants": [
-    { "id": "FA001", "name": "Mona Adel", "email": "mona@airline.com", "phone": "0100000002", "licenseId": "LIC-5521" }
-  ],
-  "administrators": [
-    { "id": "AD001", "name": "Nour Sami", "email": "nour@airline.com", "phone": "0100000001", "username": "nsami", "password": "nour123" }
-  ],
-  "bookingAgents": [
-    { "id": "BA001", "name": "Seif Mostafa", "email": "omar@airline.com", "phone": "0100000003", "username": "oadly", "password": "omar123" }
-  ],
-  "passengers": [
-    { "id": "P001", "name": "Omar Alam", "email": "seif@example.com", "phone": "0124235235", "username": "seifm", "password": "seif123" }
-  ]
+    "administrators": [
+        {
+            "email": "nour.sami@airline.com",
+            "id": "AD001",
+            "name": "Nour Sami",
+            "passwordHash": "nour123",
+            "phone": "0100000003",
+            "username": "nsami"
+        }
+    ],
+    "aircraft": [
+        {
+            "maxRunningHours": 20000.0,
+            "model": "Airbus A320",
+            "seats": [
+                {
+                    "occupied": true,
+                    "passengerId": "P001",
+                    "seatId": "X1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "Q1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "F1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "F2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "E1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "L1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "P1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "E2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "S1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "D1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "D2"
+                }
+            ],
+            "tailNumber": "SU-GEM"
+        }
+    ],
+    "bookingAgents": [
+        {
+            "email": "omar.adly@airline.com",
+            "id": "BA001",
+            "name": "Omar Adly",
+            "passwordHash": "omar123",
+            "phone": "0100000004",
+            "username": "oadly"
+        }
+    ],
+    "flightAttendants": [
+        {
+            "email": "mona.adel@airline.com",
+            "flightHours": 0.0,
+            "id": "FA001",
+            "licenseId": "LIC-5521",
+            "name": "Mona Adel",
+            "phone": "0100000002"
+        }
+    ],
+    "flights": [
+        {
+            "aircraftTailNumber": "SU-GEM",
+            "assignedCrewIds": [],
+            "date": "0-1/0-1/-1 : 0-1:0-1 AM",
+            "destination": "america",
+            "durationHours": 8.0,
+            "flightNumber": "1230056",
+            "minFlightHours": 1.0,
+            "origin": "egypt",
+            "seats": [
+                {
+                    "occupied": true,
+                    "passengerId": "P001",
+                    "seatId": "X1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "Q1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "F1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "F2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "E1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "L1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "P1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "E2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "S1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "D1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "D2"
+                }
+            ],
+            "status": "Scheduled"
+        }
+    ],
+    "passengers": [
+        {
+            "email": "laila.tarek@example.com",
+            "id": "P002",
+            "loyaltyPoints": 0,
+            "name": "Laila Tarek",
+            "passwordHash": "laila123",
+            "phone": "0111122334",
+            "username": "ltarek"
+        },
+        {
+            "email": "seif.mostafa@example.com",
+            "id": "P001",
+            "loyaltyPoints": 0,
+            "name": "Seif Mostafa",
+            "passwordHash": "seif123",
+            "phone": "0124235235",
+            "username": "seifm"
+        }
+    ],
+    "pilots": [
+        {
+            "email": "ahmed.hassan@airline.com",
+            "flightHours": 0.0,
+            "id": "CP001",
+            "licenseId": "LIC-9981",
+            "name": "Ahmed Hassan",
+            "phone": "0100000001"
+        }
+    ]
 }

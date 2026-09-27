@@ -33,6 +33,14 @@ struct SeatData {
     }
 };
 
+// Struct used when loading/restoring pre-existing seats
+struct PreExistingSeat {
+    SeatId_t id;
+    SeatClass seatClass;
+    SeatPosition position;
+    std::shared_ptr<Passenger> passenger = nullptr;
+};
+
 class SeatLayout {
 private:
     // Canonical storage: every seat ever created, by id. mainly for ui display later
@@ -60,15 +68,13 @@ private:
 
 public:
     SeatLayout() = default;
+    explicit SeatLayout(const std::vector<PreExistingSeat>& existingSeats);
 
     static std::optional<SeatClass> getClassById(const SeatId_t& seatId);
     static std::optional<SeatPosition> getPositionById(const SeatId_t& seatId);
 
     // Bulk-creates `count` seats in the given tier, generating sequential
-    // ids (business+window: P1, Q1, P2, Q2, ...). Called once per tier
-    // while reading the "N seats of each tier" input file.
-    // Returns the generated ids, or nullopt if (class, position) isn't a
-    // real tier in this layout (e.g. Business+Aisle doesn't exist).
+    // ids (business+window: P1, Q1, P2, Q2, ...). CallBd once per tier
     std::optional<std::vector<SeatId_t>> addSeats(SeatClass seatClass, SeatPosition position, int count);
 
     std::shared_ptr<SeatId_t> findSeat(SeatClass seatClass, SeatPosition position) const;
@@ -79,6 +85,7 @@ public:
     // booking agent's responsibility, not this class's.
     std::optional<SeatData> assignSeat(SeatClass seatClass, SeatPosition position,
                                         std::shared_ptr<Passenger> passenger);
+    std::optional<SeatData> assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger);
 
     // Frees a seat by id, returning the passenger who was in it
     // (nullptr if the id doesn't exist or wasn't occupied).
@@ -88,6 +95,7 @@ public:
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;
 
     int getTierSeatCount(SeatClass seatClass, SeatPosition position) const;
+    std::tuple<int, int, int> getAvailableSeatsPerTier() const;
     
     int getFirstClassCapacity() const;
     int getBusinessClassCapacity() const;

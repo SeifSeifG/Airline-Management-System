@@ -3,6 +3,8 @@
 #include "domain/SeatLayout.hpp"
 #include "domain/CrewMember.hpp"
 #include "domain/Passenger.hpp"
+#include "domain/Pilot.hpp"
+#include "domain/FlightAttendant.hpp"
 #include <utility>
 #include <algorithm> // Required for std::remove_if
 #include <stdexcept> // for the getAircraft function
@@ -19,14 +21,30 @@ Flight::Flight(std::string flightNumber, std::string origin, std::string destina
       duration_(duration),
       regulations_(std::move(reg)){}
 
+// flight ends, this should be called (if it ever ended LOL)
+Flight::~Flight(){
+    auto ac = aircraft_.lock();
+    if (ac) {
+        ac->assignToFlight(false);
+    }
+        
+}
+
 const std::string& Flight::getFlightNumber() const { return flightNumber_; }
 const std::string& Flight::getOrigin() const { return origin_; }
 const std::string& Flight::getDestination() const { return destination_; }
+std::shared_ptr<Aircraft> Flight::getAircraft() const { return getAircraftOrThrow(); }
 Date Flight::getDate() const { return date_; }
 float Flight::getDuration() const { return duration_; }
 FlightStatus Flight::getStatus() const { return status_; }
+const CrewRegulations& Flight::getRegulations() const {return regulations_;}
+const std::vector<std::weak_ptr<FlightAttendant>> Flight::getFAs() const {return flightAtts_;}
+    const std::vector<std::weak_ptr<Pilot>> Flight::getPilots() const {return pilots_;}
 
-
+void Flight::setOrigin(std::string origin){ origin_ = origin; }
+void Flight::setDestination(std::string destination) { destination_ = destination; }
+void Flight::setDate(const Date& date) { date_ = date; }
+void Flight::setDuration(float duration) { duration_ = duration; }
 void Flight::setStatus(FlightStatus status) { status_ = status; }
 
 bool Flight::assignAircraft(std::shared_ptr<Aircraft> aircraft) {
@@ -36,7 +54,9 @@ bool Flight::assignAircraft(std::shared_ptr<Aircraft> aircraft) {
     if (aircraft->getMaintenanceStatus() == MaintenanceStatus::InMaintenance) {
         return false; 
     }
+
     aircraft->addRunningHours(duration_);
+    aircraft->assignToFlight(true);
     aircraft_ = aircraft; // Automatically converts shared_ptr to weak_ptr
     return true;
 }
@@ -48,27 +68,50 @@ bool Flight::isRegulationCompliant(std::shared_ptr<CrewMember> crewMember) {
     return crewMember->getFlightHours() >= this->regulations_.minFlightHours;
 }
 
-bool Flight::assignCrew(std::shared_ptr<CrewMember> crewMember) {
-    if (!crewMember || isRegulationCompliant(crewMember)) {
+
+bool Flight::assignCrewMember(std::shared_ptr<CrewMember> crew){
+    if (!crew || !isRegulationCompliant(crew)) {
         return false;
     }
-    crew_.push_back(crewMember); // Stores weak_ptr internally
-    crewMember->addFlightHours(this->duration_);
-    return true;
+
+    if (crew->getRole() == Role::Pilot){
+        pilots_.push_back(std::dynamic_pointer_cast<Pilot>(crew)); // Stores weak_ptr internally
+        crew->addFlightHours(this->duration_);
+        return true;
+    } else {
+        flightAtts_.push_back(std::dynamic_pointer_cast<FlightAttendant>(crew)); // Stores weak_ptr internally
+        crew->addFlightHours(this->duration_);
+        return true;
+    }
+
 }
 
 bool Flight::removeCrewMember(const std::string& licenseId) {
-    auto newEnd = std::remove_if(crew_.begin(), crew_.end(),
+    auto newEndPilot = std::remove_if(pilots_.begin(), pilots_.end(),
         [&licenseId](const auto& weakMember) {
             auto member = weakMember.lock();
             return member && member->getLicenseId() == licenseId;
         });
 
-    if (newEnd == crew_.end()) {
+    if (newEndPilot == pilots_.end()) {
         return false;
     }
 
-    crew_.erase(newEnd, crew_.end());
+    pilots_.erase(newEndPilot, pilots_.end());
+
+
+    auto newEndFA = std::remove_if(flightAtts_.begin(), flightAtts_.end(),
+        [&licenseId](const auto& weakMember) {
+            auto member = weakMember.lock();
+            return member && member->getLicenseId() == licenseId;
+        });
+
+    if (newEndFA == flightAtts_.end()) {
+        return false;
+    }
+
+    flightAtts_.erase(newEndFA, flightAtts_.end());
+
     return true;
 }
 
@@ -89,6 +132,10 @@ int Flight::getOccupiedFirstClass() const { return getAircraftOrThrow()->getOccu
 int Flight::getOccupiedBusinessClass() const { return getAircraftOrThrow()->getOccupiedBusinessClass(); }
 int Flight::getOccupiedEconomyClass() const { return getAircraftOrThrow()->getOccupiedEconomyClass(); }
 
+std::tuple<int, int, int> Flight::getAvailableSeatsPerTier() const{
+    return getAircraftOrThrow()->getAvailableSeatsPerTier();
+}
+
 const std::unordered_map<SeatId_t, SeatData>& Flight::getAllSeats() const{
     return getAircraftOrThrow()->getAllSeats();
 }
@@ -99,6 +146,10 @@ const std::shared_ptr<SeatId_t> Flight::findSeat(SeatClass seatClass, SeatPositi
 
 bool Flight::assignSeat(SeatClass seatClass, SeatPosition position, std::shared_ptr<Passenger> passenger) {
     return getAircraftOrThrow()->assignSeat(seatClass, position, std::move(passenger));
+}
+
+bool Flight::assignSeat(const SeatId_t& id, std::shared_ptr<Passenger> passenger){
+        return getAircraftOrThrow()->assignSeat(id, std::move(passenger));
 }
 
 std::shared_ptr<Passenger> Flight::freeSeat(const SeatId_t& id) {
