@@ -52,8 +52,9 @@ std::shared_ptr<Passenger> AuthService::registerPassenger(std::string name, cont
     }
 
     std::string id = generatePassengerId(passengerRepo_);
-    auto passenger = std::make_shared<Passenger>(id, std::move(name), std::move(contact),
-                                                  username, PasswordHasher::hashPassword(plainPassword));
+    auto passenger = std::make_shared<Passenger>(id, std::move(name), 
+    std::move(contact),username,  
+    PasswordHasher::hashPassword(plainPassword), 0); // initial balance to zero
 
     passengerRepo_.add(passenger->getId(), passenger);
     return passenger;

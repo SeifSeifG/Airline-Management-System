@@ -45,6 +45,7 @@ float Aircraft::getMaxRunningHours() const { return maxRunningHours_; }
 bool Aircraft::isAssigned() const{ return assigned;}
 void Aircraft::assignToFlight(bool as){ assigned = as;}
 void Aircraft::addRunningHours(float hours) { runningHours_ += hours; }
+void Aircraft::setMaintenanceStatus(MaintenanceStatus s) {status_ = s;}
 
 const std::unordered_map<SeatId_t, SeatData>& Aircraft::getAllSeats() const {
     return seatLayout_.getAllSeats();

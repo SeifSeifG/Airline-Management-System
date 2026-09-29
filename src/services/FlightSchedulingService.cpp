@@ -12,16 +12,21 @@ bool FlightSchedulingService::addFlight(const std::string& flightNumber,
                                         const std::string& depTime,
                                         std::shared_ptr<Aircraft> ac,
                                         float duration,
-                                        const CrewRegulations& reg) 
+                                        const CrewRegulations& reg,
+                                        int basePrice) 
 {
     if (!ac || ac->isAssigned()) {
+        return false;
+    }
+
+    if (flightRepo_.get(flightNumber) != nullptr){
         return false;
     }
 
     Date depDate{depTime};
 
     auto flight = std::make_shared<Flight>(
-        flightNumber, origin, destination, depDate, duration, reg
+        flightNumber, origin, destination, depDate, duration, basePrice, reg
     );
 
     if (!flight->assignAircraft(ac)) {
@@ -52,20 +57,6 @@ std::shared_ptr<Flight> FlightSchedulingService::getFlightById(const std::string
 
 std::vector<std::shared_ptr<Flight>> FlightSchedulingService::getAllFlights() const {
     return flightRepo_.getAll();
-}
-
-std::vector<std::shared_ptr<Aircraft>> FlightSchedulingService::getAvailableAircrafts() const {
-    std::vector<std::shared_ptr<Aircraft>> available;
-    for (const auto& ac : aircraftRepo_.getAll()) {
-        if (ac && !ac->isAssigned()) {
-            available.push_back(ac);
-        }
-    }
-    return available;
-}
-
-std::shared_ptr<Aircraft> FlightSchedulingService::getAircraftByTailNumber(const std::string& tailNumber) const {
-    return aircraftRepo_.get(tailNumber);
 }
 
 } // namespace airline

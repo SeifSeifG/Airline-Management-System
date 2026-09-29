@@ -9,17 +9,23 @@
 #include <algorithm> // Required for std::remove_if
 #include <stdexcept> // for the getAircraft function
 
+namespace {
+    constexpr float businessClassPriceMultiple = 1.5;
+    constexpr float firstClassPriceMultiple = 2.5;
+}
+
 
 namespace airline {
 
 Flight::Flight(std::string flightNumber, std::string origin, std::string destination,
-               Date date, float duration, CrewRegulations reg)
+               Date date, float duration, int basePrice, CrewRegulations reg)
     : flightNumber_(std::move(flightNumber)),
       origin_(std::move(origin)),
       destination_(std::move(destination)),
       date_(std::move(date)),
       duration_(duration),
-      regulations_(std::move(reg)){}
+      basePrice_(std::move(basePrice)),
+      regulations_(std::move(reg)) {}
 
 // flight ends, this should be called (if it ever ended LOL)
 Flight::~Flight(){
@@ -46,6 +52,7 @@ void Flight::setDestination(std::string destination) { destination_ = destinatio
 void Flight::setDate(const Date& date) { date_ = date; }
 void Flight::setDuration(float duration) { duration_ = duration; }
 void Flight::setStatus(FlightStatus status) { status_ = status; }
+void Flight::setBasePrice(int price){ basePrice_ = price; }
 void Flight::setAircraft(std::shared_ptr<Aircraft> aircraft) { aircraft_ = aircraft; }
 bool Flight::setCrewMember(std::shared_ptr<CrewMember> crew){
     if (crew->getRole() == Role::Pilot){
@@ -88,42 +95,50 @@ bool Flight::assignCrewMember(std::shared_ptr<CrewMember> crew){
     if (crew->getRole() == Role::Pilot){
         pilots_.push_back(std::dynamic_pointer_cast<Pilot>(crew)); // Stores weak_ptr internally
         crew->addFlightHours(this->duration_);
+        crew->setAvailable(false);
         return true;
     } else {
         flightAtts_.push_back(std::dynamic_pointer_cast<FlightAttendant>(crew)); // Stores weak_ptr internally
         crew->addFlightHours(this->duration_);
+        crew->setAvailable(false);
         return true;
     }
 
 }
 
 bool Flight::removeCrewMember(const std::string& licenseId) {
-    auto newEndPilot = std::remove_if(pilots_.begin(), pilots_.end(),
+    // 1. Search in pilots
+    auto itPilot = std::find_if(pilots_.begin(), pilots_.end(),
         [&licenseId](const auto& weakMember) {
             auto member = weakMember.lock();
             return member && member->getLicenseId() == licenseId;
         });
 
-    if (newEndPilot == pilots_.end()) {
-        return false;
+    if (itPilot != pilots_.end()) {
+        if (auto member = itPilot->lock()) {
+            member->setAvailable(true); // Reset availability
+        }
+        pilots_.erase(itPilot);
+        return true;
     }
 
-    pilots_.erase(newEndPilot, pilots_.end());
-
-
-    auto newEndFA = std::remove_if(flightAtts_.begin(), flightAtts_.end(),
+    // 2. Search in flight attendants
+    auto itFA = std::find_if(flightAtts_.begin(), flightAtts_.end(),
         [&licenseId](const auto& weakMember) {
             auto member = weakMember.lock();
             return member && member->getLicenseId() == licenseId;
         });
 
-    if (newEndFA == flightAtts_.end()) {
-        return false;
+    if (itFA != flightAtts_.end()) {
+        if (auto member = itFA->lock()) {
+            member->setAvailable(true); // Reset availability
+        }
+        flightAtts_.erase(itFA);
+        return true;
     }
 
-    flightAtts_.erase(newEndFA, flightAtts_.end());
-
-    return true;
+    // License ID not found in either list
+    return false;
 }
 
 
@@ -142,6 +157,17 @@ int Flight::getEconomyClassCapacity() const { return getAircraftOrThrow()->getEc
 int Flight::getOccupiedFirstClass() const { return getAircraftOrThrow()->getOccupiedFirstClass(); }
 int Flight::getOccupiedBusinessClass() const { return getAircraftOrThrow()->getOccupiedBusinessClass(); }
 int Flight::getOccupiedEconomyClass() const { return getAircraftOrThrow()->getOccupiedEconomyClass(); }
+
+int Flight::getPriceByClass(SeatClass seatClass) const {
+    int price = basePrice_;
+    switch (seatClass)
+    {
+    case SeatClass::Business: price = basePrice_ * businessClassPriceMultiple; break;
+    case SeatClass::First: price = basePrice_ * firstClassPriceMultiple; break;
+    default:  break;
+    }
+    return price;
+}
 
 std::tuple<int, int, int> Flight::getAvailableSeatsPerClass() const{
     return getAircraftOrThrow()->getAvailableSeatsPerClass();

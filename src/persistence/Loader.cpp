@@ -30,12 +30,13 @@ Date parseDate(const std::string& dateStr) {
 }
 
 FlightStatus parseFlightStatus(const std::string& statusStr) {
-    if (statusStr == "Scheduled") return FlightStatus::Scheduled;
-    if (statusStr == "Delayed")   return FlightStatus::Delayed;
-    if (statusStr == "Departed")  return FlightStatus::Departed;
-    if (statusStr == "Cancelled") return FlightStatus::Cancelled;
-    return FlightStatus::Scheduled;
+    return fromString<FlightStatus>(statusStr).value();
 }
+
+ReservationStatus parseReservationStatus(const std::string& statusStr) {
+    return fromString<ReservationStatus>(statusStr).value();
+}
+
 
 SeatLayout buildSeatLayout(const json& seatJson, PassengerRepository& passengerRepo) {
     if (seatJson.is_array()) {
@@ -75,6 +76,45 @@ SeatLayout buildSeatLayout(const json& seatJson, PassengerRepository& passengerR
         return layout;
     }
     return SeatLayout{};
+}
+
+// BookingRequest and CheckInRequest have the same shape, so one helper builds either.
+// The repositories come in as parameters because this free function is not a friend
+// of AirlineApplication (same reason buildSeatLayout takes passengerRepo).
+template <typename RequestT>
+std::shared_ptr<RequestT> buildRequest(const json& entry,
+                                       PassengerRepository& passengerRepo,
+                                       FlightRepository& flightRepo) {
+    std::string passengerId = entry.at("passengerId").get<std::string>();
+    std::string flightNumber = entry.at("flightNumber").get<std::string>();
+
+    auto passenger = passengerRepo.get(passengerId);
+    if (!passenger) {
+        throw std::runtime_error("unknown passenger id '" + passengerId + "'");
+    }
+    auto flight = flightRepo.get(flightNumber);
+    if (!flight) {
+        throw std::runtime_error("unknown flight number '" + flightNumber + "'");
+    }
+
+    auto req = std::make_shared<RequestT>();
+    req->id = entry.at("id").get<std::string>();
+    req->passenger = passenger;
+    req->flight = flight;
+
+    if (entry.contains("seatClass")) {
+        req->seatClass = fromString<SeatClass>(entry.at("seatClass").get<std::string>()).value();
+    }
+
+    if (entry.contains("price")) {
+        req->price = entry.at("price").get<int>();
+    }
+
+    if (entry.contains("status")) {
+        req->status = parseReservationStatus(entry.at("status").get<std::string>());
+    }
+
+    return req;
 }
 
 contactInfo buildContactInfo(const json& entryJson) {
@@ -125,8 +165,7 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
 
-            auto admin = std::make_shared<Administrator>(id, name, contact, username,
-                                                        password, Role::Administrator);
+            auto admin = std::make_shared<Administrator>(id, name, contact, username, password);
             app.admins_.add(id, admin);
         } catch (const std::exception& e) {
             std::cerr << "Skipping malformed administrator entry: " << e.what() << "\n";
@@ -150,9 +189,8 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
 
-            auto agent = std::make_shared<BookingAgent>(id, name, contact, username,
-                                                        password, Role::BookingAgent);
-            app.bookingAgents_.add(id, agent);
+            auto agent = std::make_shared<BookingAgent>(id, name, contact, username, password);
+            app.agentRepo_.add(id, agent);
         } catch (const std::exception& e) {
             std::cerr << "Skipping malformed booking agent entry: " << e.what() << "\n";
         }
@@ -175,8 +213,15 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
 
-            auto passenger = std::make_shared<Passenger>(id, name, contact, username, password);
-            passenger->earnLoyaltyPoints(entry.at("loyaltyPoints").get<int>());
+            // Parse balance (defaults to 0 if missing from JSON)
+            int balance = entry.value("balance", 0);
+
+            // Pass balance as the 6th argument to Passenger constructor
+            auto passenger = std::make_shared<Passenger>(id, name, contact, username, password, balance);
+
+            if (entry.contains("loyaltyPoints")) {
+                passenger->earnLoyaltyPoints(entry.at("loyaltyPoints").get<int>());
+            }
 
             app.passengerRepo_.add(id, passenger);
         } catch (const std::exception& e) {
@@ -248,6 +293,9 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                 Date date = parseDate(entry.at("date").get<std::string>());
                 float duration = entry.value("durationHours", 0.0f);
 
+                // Parse base price (default to 100 if missing from JSON)
+                int basePrice = entry.value("basePrice", 100);
+
                 // Parse crew regulations from the array format: [{"minFlightHours": 1}]
                 CrewRegulations regs{0};
                 if (entry.contains("crewRegulations") && entry.at("crewRegulations").is_array() && !entry.at("crewRegulations").empty()) {
@@ -257,7 +305,8 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                     }
                 }
 
-                auto flight = std::make_shared<Flight>(flightNumber, origin, destination, date, duration, regs);
+                // Pass basePrice as the 7th argument to the Flight constructor
+                auto flight = std::make_shared<Flight>(flightNumber, origin, destination, date, duration, basePrice, regs);
 
                 if (entry.contains("status")) {
                     flight->setStatus(parseFlightStatus(entry.at("status").get<std::string>()));
@@ -295,6 +344,89 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
                 app.flightRepo_.add(flightNumber, flight);
             } catch (const std::exception& e) {
                 std::cerr << "Skipping malformed flight entry: " << e.what() << "\n";
+            }
+        }
+    }
+    
+    // ---- 8. Booking Requests (must come after passengers AND flights) ----
+    // Cleared first: repositories replace entries by id, but a vector appends,
+    // so loading twice would otherwise double every request.
+    app.bookingRequests_.clear();
+    if (root.contains("bookingRequests") && root.at("bookingRequests").is_array()) {
+        for (const auto& entry : root.at("bookingRequests")) {
+            try {
+                auto req = buildRequest<BookingRequest>(entry, app.passengerRepo_, app.flightRepo_);
+                app.bookingRequests_.push_back(req);
+
+                // Lock the weak_ptr to safely invoke passenger methods
+                if (auto passenger = req->passenger.lock()) {
+                    passenger->addBookingReq(req);
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Skipping malformed booking request entry: " << e.what() << "\n";
+            }
+        }
+    }
+
+    // ---- 9. Check-In Requests ----
+    app.checkInRequests_.clear();
+    if (root.contains("checkInRequests") && root.at("checkInRequests").is_array()) {
+        for (const auto& entry : root.at("checkInRequests")) {
+            try {
+                auto req = buildRequest<CheckInRequest>(entry, app.passengerRepo_, app.flightRepo_);
+                app.checkInRequests_.push_back(req);
+
+                // Lock the weak_ptr to safely invoke passenger methods
+                if (auto passenger = req->passenger.lock()) {
+                    passenger->addCheckInReq(req);
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Skipping malformed check-in request entry: " << e.what() << "\n";
+            }
+        }
+    }
+
+    // ---- 10. Finished Requests ----
+    if (root.contains("finishedRequests") && root.at("finishedRequests").is_array()) {
+        for (const auto& entry : root.at("finishedRequests")) {
+            try {
+                auto req = std::make_shared<FinishedRequest>();
+                
+                req->checkInId     = entry.value("checkInId", "");
+                req->passengerId   = entry.value("passengerId", "");
+                req->passengerName = entry.value("passengerName", "");
+                req->flightNumber  = entry.value("flightNumber", "");
+                req->origin        = entry.value("origin", "");
+                req->destination   = entry.value("destination", "");
+                req->departureDate = entry.value("departureDate", "");
+
+                if (entry.contains("seatClass")) {
+                    req->seatClass = fromString<SeatClass>(entry.at("seatClass").get<std::string>()).value();
+                }
+
+                if (entry.contains("price")) {
+                    req->price = entry.at("price").get<int>();
+                }
+
+                if (entry.contains("reservationStatus")) {
+                    req->reservationStatus = parseReservationStatus(entry.at("reservationStatus").get<std::string>());
+                }
+
+                if (entry.contains("paymentStatus")) {
+                    req->paymentStatus = fromString<PaymentStatus>(entry.at("paymentStatus").get<std::string>()).value();
+                }
+
+                // Add to repository
+                app.finishedRequests_.push_back(req);
+
+                // Re-link to passenger's travel history for UI lookup
+                if (!req->passengerId.empty()) {
+                    if (auto passenger = app.passengerRepo_.get(req->passengerId)) {
+                        passenger->addTravelHistory(req);
+                    }
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Skipping malformed finished request entry: " << e.what() << "\n";
             }
         }
     }

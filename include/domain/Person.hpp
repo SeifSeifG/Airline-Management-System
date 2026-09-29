@@ -30,7 +30,7 @@ Person(
     const contactInfo& getContactInfo() const;
 
     void setContactInfo(const contactInfo& contactInfo);
-
+    void setName(const std::string& name);
 };
 
 }  // namespace airline

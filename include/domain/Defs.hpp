@@ -11,6 +11,38 @@ typedef std::string PersonId_t;
 
 
 enum class Role { Administrator, BookingAgent, Passenger, Pilot, FlightAttendant};
+inline std::optional<Role> intToRole(int value) {
+    switch (value) {
+        case 1: return Role::Administrator;
+        case 2: return Role::BookingAgent;
+        case 3: return Role::Passenger;
+        case 4: return Role::Pilot;
+        case 5: return Role::FlightAttendant;
+        default: return std::nullopt; // Invalid range
+    }
+}
+inline std::ostream& operator<<(std::ostream& os, Role role) {
+    switch (role) {
+        case Role::Administrator:   return os << "Administrator";
+        case Role::BookingAgent:    return os << "BookingAgent";
+        case Role::Passenger:       return os << "Passenger";
+        case Role::Pilot:           return os << "Pilot";
+        case Role::FlightAttendant: return os << "FlightAttendant";
+        default:                    return os << "Unknown";
+    }
+}
+inline std::istream& operator>>(std::istream& is, Role& role) {
+    std::string token;
+    if (is >> token) {
+        if (token == "Administrator")        role = Role::Administrator;
+        else if (token == "BookingAgent")    role = Role::BookingAgent;
+        else if (token == "Passenger")       role = Role::Passenger;
+        else if (token == "Pilot")           role = Role::Pilot;
+        else if (token == "FlightAttendant") role = Role::FlightAttendant;
+        else is.setstate(std::ios::failbit);
+    }
+    return is;
+}
 
 enum class FlightStatus { Scheduled, Delayed, Departed, Cancelled };
 inline std::ostream& operator<<(std::ostream& os, FlightStatus status) {
@@ -75,12 +107,14 @@ inline std::istream& operator>>(std::istream& is, MaintenanceStatus& status) {
 }
 
 // ReservationStatus
-enum class ReservationStatus { Pending, Confirmed, CheckedIn, Cancelled };
+enum class ReservationStatus { NoReservation ,PendingBook, ConfirmedBook, PendingCheckIn, Confirmed, Cancelled };
 inline std::ostream& operator<<(std::ostream& os, ReservationStatus status) {
     switch (status) {
-        case ReservationStatus::Pending:   return os << "Pending";
+        case ReservationStatus::NoReservation: return os << "NoReservation";
+        case ReservationStatus::PendingBook:   return os << "PendingBook";
+        case ReservationStatus::ConfirmedBook: return os << "ConfirmedBook";
+        case ReservationStatus::PendingCheckIn: return os << "PendingCheckIn";
         case ReservationStatus::Confirmed: return os << "Confirmed";
-        case ReservationStatus::CheckedIn: return os << "CheckedIn";
         case ReservationStatus::Cancelled: return os << "Cancelled";
         default:                           return os << "Unknown";
     }
@@ -88,9 +122,11 @@ inline std::ostream& operator<<(std::ostream& os, ReservationStatus status) {
 inline std::istream& operator>>(std::istream& is, ReservationStatus& status) {
     std::string token;
     if (is >> token) {
-        if (token == "Pending")        status = ReservationStatus::Pending;
+        if (token == "NoReservation")        status = ReservationStatus::NoReservation;
+        else if (token == "PendingBook")  status = ReservationStatus::PendingBook;
+        else if (token == "ConfirmedBook")  status = ReservationStatus::ConfirmedBook;
+        else if (token == "PendingCheckIn")  status = ReservationStatus::PendingCheckIn;
         else if (token == "Confirmed")  status = ReservationStatus::Confirmed;
-        else if (token == "CheckedIn")  status = ReservationStatus::CheckedIn;
         else if (token == "Cancelled")  status = ReservationStatus::Cancelled;
         else is.setstate(std::ios::failbit);
     }
@@ -140,7 +176,7 @@ inline std::istream& operator>>(std::istream& is, PaymentMethod& method) {
 }
 
 template <typename T>
-std::string myToString(const T& value) {
+std::string toString(const T& value) {
     std::ostringstream oss;
     oss << value;
     return oss.str();
@@ -159,12 +195,14 @@ std::optional<T> fromString(const std::string& str) {
 // 
 class Date {
 private:
-    int min;
-    int hour;
-    int day;
-    int month;
-    int year;
+    int min{0};
+    int hour{0};
+    int day{1};
+    int month{1};
+    int year{2027};
 public:
+    Date() = default;
+
     Date(int min, int h, int d, int m, int y) : min(min), hour(h), day(d), month(m), year(y) {
         if (!isValid(min, h, d, m, y)) {
             min = hour = day = month = year = -1;
@@ -189,7 +227,11 @@ public:
         // Fallback: Parse DD/MM/YYYY HH:MM
         else if (std::sscanf(s.c_str(), "%d/%d/%d %d:%d", &d, &m, &y, &h, &mn) == 5) {
             // Parsed alternate date format
-        } 
+        }
+        // Add this branch to your Date constructor sscanf checks:
+        else if (std::sscanf(s.c_str(), "%d/%d/%d : %d:%d", &d, &m, &y, &h, &mn) == 5) {
+            // Parsed "DD/MM/YYYY : HH:MM"
+        }
         else {
             min = hour = day = month = year = -1;
             return;
@@ -243,6 +285,19 @@ public:
         && this->min == dt.min;
     }
 
+    // Overload > operator for chronologically greater (later) dates
+    bool operator>(const Date& rhs) const {
+        if (year != rhs.year)   return year > rhs.year;
+        if (month != rhs.month) return month > rhs.month;
+        if (day != rhs.day)     return day > rhs.day;
+        if (hour != rhs.hour)   return hour > rhs.hour;
+        return min > rhs.min;
+    }
+
+    bool operator<(const Date& rhs) const {
+        return rhs > *this;
+    }
+
     // Declare the stream insertion operator as a friend
     friend std::ostream& operator<<(std::ostream& os, const Date& dt) {
         // Formats as DD/MM/YYYY : HH:MM (24-hour format)
@@ -270,6 +325,15 @@ public:
             is.setstate(std::ios::failbit);
         }
         return is;
+    }
+
+    static Date parseString(const std::string& dateStr) {
+        Date d;
+        char sep;
+        std::stringstream ss(dateStr);
+        ss >> d.day >> sep >> d.month >> sep >> d.year;
+        if (ss >> sep >> d.hour >> sep >> d.min) {}
+        return d;
     }
 
 };

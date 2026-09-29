@@ -20,31 +20,40 @@ private:
     void handlePassengerLogin();
 
     // Role Main Menus
-    void showAdminMenu();
     void showAgentMenu();
     void showPassengerMenu();
-
+    
     // --- Administrator Handlers & Sub-Menus ---
-    void showManageFlightsMenu();
-    void handleAddFlight();
-    void handleUpdateFlight();
-    void handleflightDetailUpdate(std::shared_ptr<Flight> flight);
-    void handleAssignCrew(const std::shared_ptr<Flight>& flight);
-    void handleRemoveFlight();
-    void handleViewAllFlights();
+    void showAdminMenu();
+        void showManageFlightsMenu();
+            void handleAddFlight();
+            void handleUpdateFlight();
+                void handleflightDetailUpdate(std::shared_ptr<Flight> flight);
+                void handleAssignCrew(const std::shared_ptr<Flight>& flight);
+            void handleRemoveFlight();
+            void handleViewAllFlights();
 
-    void showManageAircraftMenu();
-    void showManageUsersMenu();
+        void showManageAircraftMenu();
+            void handleAddAircraft();
+            void handleUpdateAircraft();
+            void handleRemoveAircraft();
+            void handleViewAllAircraft();
 
-    void showGenerateReportsMenu();
-    void handleOperationalReport();
-    void handleMaintenanceReport();
-    void handleUserActivityReport();
+        void showManageUsersMenu();
+            void handleAddUser();
+            void handleUpdateUser();
+            void handleRemoveUser();
+            void handleViewAllUsers();
+
+        void showGenerateReportsMenu();
+            void handleOperationalReport();
+            void handleMaintenanceReport();
+            void handleUserActivityReport();
 
     // --- Booking Agent Handlers ---
     void handleAgentSearchFlights();
-    void handleAgentBookFlight();
-    void handleModifyReservation();
+    void handleAgentBookConfirm();
+    void handleAgentCheckInConfirm();
     void handleCancelReservation();
 
     // --- Passenger Handlers ---

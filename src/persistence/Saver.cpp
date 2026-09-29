@@ -67,7 +67,7 @@ json aircraftToJson(const std::shared_ptr<Aircraft>& aircraft) {
         {"model", aircraft->getModel()},
         {"runningHours", aircraft->getRunningHours()},
         {"maxRunningHours", aircraft->getMaxRunningHours()},
-        {"maintenanceStatus", myToString(aircraft->getMaintenanceStatus())},
+        {"maintenanceStatus", toString(aircraft->getMaintenanceStatus())},
         {"seats", seatMapToJson(aircraft->getAllSeats())}
     };
 }
@@ -90,17 +90,58 @@ nlohmann::json crewRegToJson(const CrewRegulations& regs) {
 }
 
 nlohmann::json flightToJson(const std::shared_ptr<Flight>& flight) {
+    if (!flight) return nlohmann::json::object();
+
     return {
         {"flightNumber", flight->getFlightNumber()},
         {"origin", flight->getOrigin()},
         {"destination", flight->getDestination()},
-        {"date", myToString(flight->getDate())},
+        {"date", toString(flight->getDate())},
         {"durationHours", flight->getDuration()},
-        {"aircraftTailNumber", flight->getAircraft()->getTailNumber()},
+        {"basePrice", flight->getPriceByClass(SeatClass::Economy)},
+        {"aircraftTailNumber", flight->getAircraft() ? flight->getAircraft()->getTailNumber() : ""}, // Null-safe
         {"assignedPilots", crewIdToJson(flight->getPilots())},
         {"assignedFlightAttendants", crewIdToJson(flight->getFAs())},
         {"crewRegulations", crewRegToJson(flight->getRegulations())},
-        {"status", myToString(flight->getStatus())}
+        {"status", toString(flight->getStatus())}
+    };
+}
+
+template <typename RequestT>
+json requestToJson(const std::shared_ptr<RequestT>& req) {
+    if (!req) return json::object();
+
+    // Lock weak_ptrs into shared_ptrs once
+    auto p = req->passenger.lock();
+    auto f = req->flight.lock();
+
+    return {
+        {"id", req->id},
+        {"passengerId", p ? p->getId() : std::string()},
+        {"flightNumber", f ? f->getFlightNumber() : std::string()},
+        {"seatClass", toString(req->seatClass)}, // Convert SeatClass enum to string
+        {"price", req->price},
+        {"status", toString(req->status)}
+    };
+}
+
+// specialize th template
+template <>
+json requestToJson<FinishedRequest>(const std::shared_ptr<FinishedRequest>& req) {
+    if (!req) return json::object();
+
+    return {
+        {"checkInId", req->checkInId},
+        {"passengerId", req->passengerId},
+        {"passengerName", req->passengerName},
+        {"flightNumber", req->flightNumber},
+        {"origin", req->origin},
+        {"destination", req->destination},
+        {"departureDate", req->departureDate},
+        {"seatClass", toString(req->seatClass)},
+        {"price", req->price},
+        {"reservationStatus", toString(req->reservationStatus)},
+        {"paymentStatus", toString(req->paymentStatus)}
     };
 }
 
@@ -118,7 +159,7 @@ void Saver::saveToJson(const AirlineApplication& app, const std::string& filePat
 
     // ---- Booking Agents ----
     json agentsJson = json::array();
-    for (const auto& agent : app.bookingAgents_.getAll()) {
+    for (const auto& agent : app.agentRepo_.getAll()) {
         agentsJson.push_back(UserToJson(agent));
     }
     root["bookingAgents"] = agentsJson;
@@ -128,6 +169,7 @@ void Saver::saveToJson(const AirlineApplication& app, const std::string& filePat
     for (const auto& passenger : app.passengerRepo_.getAll()) {
         json entry = UserToJson(passenger);
         entry["loyaltyPoints"] = passenger->getLoyaltyBalance();
+        entry["balance"] = passenger->getBalance();
         passengersJson.push_back(entry);
     }
     root["passengers"] = passengersJson;
@@ -159,6 +201,29 @@ void Saver::saveToJson(const AirlineApplication& app, const std::string& filePat
         flightsJson.push_back(flightToJson(flight));
     }
     root["flights"] = flightsJson;
+
+    // ---- Booking Requests ----
+    // Only the app-level list is written. Each passenger's own list holds the
+    // same objects, and the loader refills both.
+    json bookingRequestsJson = json::array();
+    for (const auto& req : app.bookingRequests_) {
+        if (req) bookingRequestsJson.push_back(requestToJson(req));
+    }
+    root["bookingRequests"] = bookingRequestsJson;
+
+    // ---- Check-In Requests ----
+    json checkInRequestsJson = json::array();
+    for (const auto& req : app.checkInRequests_) {
+        if (req) checkInRequestsJson.push_back(requestToJson(req));
+    }
+    root["checkInRequests"] = checkInRequestsJson;
+
+    // ---- 10. Finished Requests ----
+    json finishedRequestsJson = json::array();
+    for (const auto& req : app.finishedRequests_) { // Or app.finishedRequests_ depending on your container
+        if (req) finishedRequestsJson.push_back(requestToJson(req));
+    }
+    root["finishedRequests"] = finishedRequestsJson;
 
     std::ofstream out(filePath);
     if (!out.is_open()) {

@@ -25,6 +25,7 @@ private:
     std::string destination_;
     Date date_;
     float duration_; // Duration in hours
+    int basePrice_; // price per economy class, others are multiples of it
     
     // Non-owning weak references
     std::weak_ptr<Aircraft> aircraft_;
@@ -38,7 +39,7 @@ private:
     std::shared_ptr<Aircraft> getAircraftOrThrow() const;
 public:
     Flight(std::string flightNumber, std::string origin, std::string destination,
-           Date date, float duration, CrewRegulations reg);
+           Date date, float duration, int basePrice, CrewRegulations reg);
     ~Flight();
 
     const std::string& getFlightNumber() const;
@@ -57,6 +58,7 @@ public:
     void setDate(const Date& date);
     void setDuration(float duration);
     void setStatus(FlightStatus status);
+    void setBasePrice(int price);
     void setAircraft(std::shared_ptr<Aircraft> aircraft); // used in load
     bool setCrewMember(std::shared_ptr<CrewMember> crew); // used in load
 
@@ -75,6 +77,9 @@ public:
     int getOccupiedFirstClass() const;
     int getOccupiedBusinessClass() const;
     int getOccupiedEconomyClass() const;
+
+    // price getter
+    int getPriceByClass(SeatClass seatClass) const ;
 
     // available seats in all classes
     std::tuple<int, int, int> getAvailableSeatsPerClass() const;

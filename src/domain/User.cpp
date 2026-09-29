@@ -1,4 +1,5 @@
 #include "domain/User.hpp"
+#include "services/PasswordHasher.hpp"
 #include <utility>
 
 namespace airline {
@@ -10,6 +11,7 @@ User::User(PersonId_t id, std::string name, contactInfo contactInfo,
       hashedPassword_(std::move(hashedPassword)),
       role_(role) {}
 
+void User::setPassword(const std::string& plainText) { hashedPassword_ = PasswordHasher::hashPassword(plainText); }
 const std::string& User::getUsername() const { return username_; }
 const std::string& User::getHashedPassword() const {return hashedPassword_; }
 

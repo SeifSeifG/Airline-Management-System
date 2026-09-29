@@ -13,5 +13,8 @@ const contactInfo& Person::getContactInfo() const { return contactInfo_; }
 void Person::setContactInfo(const contactInfo& contactInfo) {
     contactInfo_ = contactInfo;
 }
+void Person::setName(const std::string& name){
+    name_ = name;
+}
 
 }  // namespace airline

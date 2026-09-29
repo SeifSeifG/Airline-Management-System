@@ -16,4 +16,7 @@ void CrewMember::addFlightHours(float hours) {
     flightHours_ += hours;
 }
 
+bool CrewMember::isAvailable() const { return available_; }
+void CrewMember::setAvailable(bool status) { available_ = status; }
+
 }  // namespace airline

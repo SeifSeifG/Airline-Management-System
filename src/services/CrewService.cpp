@@ -8,6 +8,9 @@ CrewService::CrewService(CrewRepository& pilots, CrewRepository& flightAtts)
 std::vector<std::shared_ptr<Pilot>> CrewService::getAvailablePilots() const {
     std::vector<std::shared_ptr<Pilot>> available;
     for (const auto& member : pilots_.getAll()) {
+        if (!member->isAvailable()){
+            continue;
+        }
         if (auto pilot = std::dynamic_pointer_cast<Pilot>(member)) {
             available.push_back(pilot);
         }
@@ -22,6 +25,9 @@ std::shared_ptr<Pilot> CrewService::getPilotById(const std::string& id) const {
 std::vector<std::shared_ptr<FlightAttendant>> CrewService::getAvailableFlightAttendants() const {
     std::vector<std::shared_ptr<FlightAttendant>> available;
     for (const auto& member : flightAtts_.getAll()) {
+        if (!member->isAvailable()){
+            continue;
+        }
         if (auto fa = std::dynamic_pointer_cast<FlightAttendant>(member)) {
             available.push_back(fa);
         }
@@ -36,9 +42,10 @@ std::shared_ptr<FlightAttendant> CrewService::getFAById(const std::string& id) c
 bool CrewService::assignCrewMember(const std::shared_ptr<Flight>& flight,
                                    const std::shared_ptr<CrewMember>& crewMember) 
 {
-    if (!flight || !crewMember) {
+    if (!flight || !crewMember || !crewMember->isAvailable()) {
         return false;
     }
+    
     return flight->assignCrewMember(crewMember);
 }
 

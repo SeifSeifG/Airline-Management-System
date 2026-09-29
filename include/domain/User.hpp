@@ -10,6 +10,7 @@ protected:
     std::string username_;
     std::string hashedPassword_;
     Role role_;
+    virtual std::string generateId() = 0;
 public:
 User(
     PersonId_t id,                      // sink parameter: caller's string is
@@ -24,15 +25,16 @@ User(
     Role role                           // Role is an enum -- trivially cheap
                                         // to copy, no ownership question at all
 );
+
     ~User() override = default;
 
+    void setPassword(const std::string& plainText);
     const std::string& getUsername() const;
     const std::string& getHashedPassword() const;
     
     bool checkPassword(std::string_view hashedAttempt) const;
     
     // Each role presents a different console menu.
-    virtual void displayMenu() const = 0;
     virtual Role getRole() const = 0;
 
 

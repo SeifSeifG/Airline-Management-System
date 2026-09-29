@@ -42,6 +42,7 @@ public:
     bool isAssigned() const;
     void addRunningHours(float hours);
     void assignToFlight(bool as);
+    void setMaintenanceStatus(MaintenanceStatus s);
 
     // SeatLayout wrappers
     const std::unordered_map<SeatId_t, SeatData>& getAllSeats() const;

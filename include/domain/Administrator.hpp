@@ -4,10 +4,17 @@
 namespace airline {
 
 class Administrator : public User {
+private:
+    static int nextId;
+    std::string generateId() override ;
 public:
-    using User::User; // Inherit constructors from User
-    void displayMenu() const override;
+    Administrator(PersonId_t id, std::string name, contactInfo contactInfo,
+                      std::string username, std::string hashedPassword);
+    Administrator(std::string name, contactInfo contactInfo,
+                      std::string username, std::string hashedPassword);
     Role getRole() const override;
+    static void setNextId(int id);
+
 };
 
 }  // namespace airline

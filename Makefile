@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -g -fsanitize=address -MMD -MP -Iinclude
+CXXFLAGS := -std=c++17 -Wall -Wextra -MMD -MP -Iinclude
 LDFLAGS := -fsanitize=address
 
 BUILD_DIR := build

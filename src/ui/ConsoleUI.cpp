@@ -2,11 +2,12 @@
 #include "app/AirlineApplication.hpp"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <limits>
 
 namespace airline {
 
-using namespace std; // much easier than  everywhere
+using namespace std; // much easier than std:: everywhere
 
 ConsoleUI::ConsoleUI(AirlineApplication& app) : app_(app) {}
 
@@ -24,27 +25,27 @@ int ConsoleUI::getIntInput(const string& prompt) {
     return choice;
 }
 
-float ConsoleUI::getFloatInput(const std::string& prompt) {
-    std::string input;
+float ConsoleUI::getFloatInput(const string& prompt) {
+    string input;
     float value = 0.0f;
 
     while (true) {
-        std::cout << prompt;
-        if (std::getline(std::cin, input)) {
-            std::stringstream ss(input);
+        cout << prompt;
+        if (getline(cin, input)) {
+            stringstream ss(input);
             // Parse float and ensure no trailing invalid characters exist
-            if (ss >> value && (ss >> std::ws).eof()) {
+            if (ss >> value && (ss >> ws).eof()) {
                 return value;
             }
         }
         
         // Handle stream error or invalid conversion
-        if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
 
-        std::cout << "Invalid input. Please enter a valid floating-point number (e.g., 2.5).\n";
+        cout << "Invalid input. Please enter a valid floating-point number (e.g., 2.5).\n";
     }
 }
 
@@ -155,24 +156,12 @@ void ConsoleUI::showAdminMenu() {
 
         int choice = getIntInput("Enter choice: ");
         switch (choice) {
-            case 1:
-                showManageFlightsMenu();
-                break;
-            case 2:
-                showManageAircraftMenu();
-                break;
-            case 3:
-                showManageUsersMenu();
-                break;
-            case 4:
-                showGenerateReportsMenu();
-                break;
-            case 5:
-                inMenu = false;
-                break;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-                break;
+            case 1: showManageFlightsMenu(); break;
+            case 2: showManageAircraftMenu(); break;
+            case 3: showManageUsersMenu(); break;
+            case 4: showGenerateReportsMenu(); break;
+            case 5: inMenu = false;  break;
+            default: cout << "Invalid choice. Please try again.\n"; break;
         }
     }
 }
@@ -182,31 +171,19 @@ void ConsoleUI::showAgentMenu() {
     while (inMenu) {
         cout << "\n--- Booking Agent Menu ---\n"
                   << "1. Search Flights\n"
-                  << "2. Book a Flight\n"
-                  << "3. Modify Reservation\n"
+                  << "2. Confirm a Booking Request\n"
+                  << "3. Confirm a Check-In Request\n"
                   << "4. Cancel Reservation\n"
                   << "5. Logout\n";
 
         int choice = getIntInput("Enter choice: ");
         switch (choice) {
-            case 1:
-                handleAgentSearchFlights();
-                break;
-            case 2:
-                handleAgentBookFlight();
-                break;
-            case 3:
-                handleModifyReservation();
-                break;
-            case 4:
-                handleCancelReservation();
-                break;
-            case 5:
-                inMenu = false;
-                break;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-                break;
+            case 1: handleAgentSearchFlights(); break;
+            case 2: handleAgentBookConfirm(); break;
+            case 3: handleAgentCheckInConfirm(); break;
+            case 4: handleCancelReservation(); break;
+            case 5: inMenu = false; break;
+            default: cout << "Invalid choice. Please try again.\n"; break;
         }
     }
 }
@@ -266,6 +243,7 @@ void ConsoleUI::handleAddFlight() {
     auto destination = getStringInput("Enter Destination: ");
     auto depTime = getStringInput("Enter Departure Date and Time (YYYY-MM-DD HH:MM): ");
     float flightDur = getFloatInput("Enter Flight Duration (hours): ");
+    int basePrice = getIntInput("Enter base Price (economy class seat): ");
 
     // Get unassigned aircrafts
     auto availableAircrafts = app_.getAvailableAircrafts();
@@ -283,7 +261,7 @@ void ConsoleUI::handleAddFlight() {
 
     int selection = 0;
     while (true) {
-        selection = getIntInput("\nSelect Aircraft (1-" + std::to_string(availableAircrafts.size()) + "): ");
+        selection = getIntInput("\nSelect Aircraft (1-" + to_string(availableAircrafts.size()) + "): ");
         if (selection >= 1 && selection <= static_cast<int>(availableAircrafts.size())) {
             break;
         }
@@ -304,7 +282,8 @@ void ConsoleUI::handleAddFlight() {
     CrewRegulations reg{minFlightHrs};
 
     // Invoke application logic
-    bool success = app_.addFlight(flightNum, origin, destination, depTime, selectedAircraft, flightDur, reg);
+    bool success = app_.addFlight(flightNum, origin, destination, depTime, 
+        selectedAircraft, flightDur, reg, basePrice);
 
     if (success) {
         cout << "\nFlight " << flightNum << " has been successfully added to the schedule.\n";
@@ -337,7 +316,7 @@ void ConsoleUI::handleUpdateFlight() {
             handleAssignCrew(flight);
         } else if (choice == 3) {
             auto newStatusStr = getStringInput("Enter New Status (0: Scheduled, 1: Delayed, 2: Canceled): ");
-            int statusInt = std::stoi(newStatusStr);
+            int statusInt = stoi(newStatusStr);
             flight->setStatus(static_cast<FlightStatus>(statusInt));
             cout << "Flight status updated successfully.\n";
         } else if (choice == 4) {
@@ -346,7 +325,7 @@ void ConsoleUI::handleUpdateFlight() {
     }
 }
 
-void ConsoleUI::handleflightDetailUpdate(std::shared_ptr<Flight> flight) {
+void ConsoleUI::handleflightDetailUpdate(shared_ptr<Flight> flight) {
     cout << "\n--- Update Flight Details (" << flight->getFlightNumber() << ") ---\n"
          << "1. Origin\n"
          << "2. Destination\n"
@@ -381,7 +360,7 @@ void ConsoleUI::handleflightDetailUpdate(std::shared_ptr<Flight> flight) {
                 Date date{newDep};
                 flight->setDate(date);
                 cout << "Flight departure time updated successfully.\n";
-            } catch (const std::exception& e) {
+            } catch (const exception& e) {
                 cout << "Invalid date format -- departure time NOT updated (" << e.what() << ").\n";
             }
         }
@@ -391,10 +370,10 @@ void ConsoleUI::handleflightDetailUpdate(std::shared_ptr<Flight> flight) {
             cout << "Duration unchanged.\n";
         } else {
             try {
-                float newDuration = std::stof(newDurStr);
+                float newDuration = stof(newDurStr);
                 flight->setDuration(newDuration);
                 cout << "Duration updated successfully.\n";
-            } catch (const std::exception& e) {
+            } catch (const exception& e) {
                 cout << "Invalid duration -- NOT updated (" << e.what() << ").\n";
             }
         }
@@ -405,7 +384,7 @@ void ConsoleUI::handleflightDetailUpdate(std::shared_ptr<Flight> flight) {
     }
 }
 
-void ConsoleUI::handleAssignCrew(const std::shared_ptr<Flight>& flight) {
+void ConsoleUI::handleAssignCrew(const shared_ptr<Flight>& flight) {
     if (!flight) return;
 
     cout << "\n--- Crew Assignments for Flight " << flight->getFlightNumber() << " ---\n";
@@ -422,7 +401,7 @@ void ConsoleUI::handleAssignCrew(const std::shared_ptr<Flight>& flight) {
                  << " - Captain " << pilot->getName() << "\n";
         }
 
-        int selection = getIntInput("Select Pilot (1-" + std::to_string(availablePilots.size()) + "): ");
+        int selection = getIntInput("Select Pilot (1-" + to_string(availablePilots.size()) + "): ");
         if (selection >= 1 && selection <= static_cast<int>(availablePilots.size())) {
             auto selectedPilot = availablePilots[selection - 1];
             if (app_.assignCrewMember(flight, selectedPilot)) {
@@ -447,7 +426,7 @@ void ConsoleUI::handleAssignCrew(const std::shared_ptr<Flight>& flight) {
                  << " - " << fa->getName() << "\n";
         }
 
-        int selection = getIntInput("Select Flight Attendant (1-" + std::to_string(availableFAs.size()) + "): ");
+        int selection = getIntInput("Select Flight Attendant (1-" + to_string(availableFAs.size()) + "): ");
         if (selection >= 1 && selection <= static_cast<int>(availableFAs.size())) {
             auto selectedFA = availableFAs[selection - 1];
             if (app_.assignCrewMember(flight, selectedFA)) {
@@ -483,11 +462,205 @@ void ConsoleUI::handleViewAllFlights() {
 }
 
 void ConsoleUI::showManageAircraftMenu() {
-    // Stub
+    while (true) {
+        std::cout << "\n--- Manage Aircraft ---\n"
+                  << "1. Add New Aircraft\n"
+                  << "2. Update Aircraft Maintenance\n"
+                  << "3. Remove Aircraft\n"
+                  << "4. View All Aircraft\n"
+                  << "5. Back to Administrator Menu\n";
+
+        int choice = getIntInput("Enter choice: ");
+        switch (choice) {
+            case 1: handleAddAircraft(); break;
+            case 2: handleUpdateAircraft(); break;
+            case 3: handleRemoveAircraft(); break;
+            case 4: handleViewAllAircraft(); break;
+            case 5: return;
+            default: std::cout << "Invalid choice. Please try again.\n"; break;
+        }
+    }
 }
 
+void ConsoleUI::handleAddAircraft() {
+    std::cout << "\n--- Add New Aircraft ---\n";
+    std::string tailNum = getStringInput("Enter Tail Number: ");
+    std::string model   = getStringInput("Enter Aircraft Model (e.g. Boeing 737): ");
+
+    // Input capacity per class on a single line
+    std::string capacityLine = getStringInput("Enter seating capacities (First Business Economy, e.g., 12 30 120): ");
+    std::stringstream ss(capacityLine);
+    int firstClass = 0, businessClass = 0, economyClass = 0;
+    ss >> firstClass >> businessClass >> economyClass;
+
+    // Collect max running hours until maintenance is required
+    float maxRunningHours = getFloatInput("Enter Max Running Hours: ");
+
+    // SeatLayout constructed with individual class capacities
+    SeatLayout seatLayout; 
+    seatLayout.addSeats(SeatClass::First, firstClass);
+    seatLayout.addSeats(SeatClass::Business, businessClass);
+    seatLayout.addSeats(SeatClass::Economy, economyClass);
+
+    bool success = app_.addAircraft(tailNum, model, seatLayout, maxRunningHours);
+    if (success) {
+        std::cout << "Aircraft " << tailNum << " (" << model << ") added successfully.\n";
+    } else {
+        std::cout << "Error: Aircraft ID already exists or failed to create.\n";
+    }
+}
+
+void ConsoleUI::handleUpdateAircraft() {
+    std::cout << "\n--- Update Aircraft Maintenance ---\n";
+    std::string tailNum = getStringInput("Enter Aircraft Tail Number: ");
+    auto aircraft = app_.getAircraftByTailNumber(tailNum);
+
+    if (!aircraft) {
+        std::cout << "Error: Aircraft " << tailNum << " not found.\n";
+        return;
+    }
+    std::cout 
+            << "1. Airworthy\n"
+            << "2. InMaintenance\n";
+    int choice = getIntInput("Enter Maintenance Status: ");
+    MaintenanceStatus status = MaintenanceStatus::Airworthy;
+    switch (choice)
+    {
+    case 2: status = MaintenanceStatus::InMaintenance; break;
+    default: break;
+    }
+    aircraft->setMaintenanceStatus(status);
+    std::cout << "Aircraft " << tailNum << " status updated to " << status << ".\n";
+}
+
+void ConsoleUI::handleRemoveAircraft() {
+    std::cout << "\n--- Remove Aircraft ---\n";
+    std::string tailNum = getStringInput("Enter Aircraft Tail Number to remove: ");
+
+    if (app_.removeAircraft(tailNum)) {
+        std::cout << "Aircraft " << tailNum << " removed successfully.\n";
+    } else {
+        std::cout << "Error: Aircraft " << tailNum << " not found.\n";
+    }
+}
+
+void ConsoleUI::handleViewAllAircraft() {
+    std::cout << "\n--- All Aircraft ---\n";
+    const auto& aircrafts = app_.getAllAircraft();
+    if (aircrafts.empty()) {
+        std::cout << "No aircraft found.\n";
+        return;
+    }
+
+    for (const auto& ac : aircrafts) {
+        if (!ac) continue;
+        std::cout << "Tail Number: " << ac->getTailNumber()
+                  << " | Model: " << ac->getModel()
+                  << " | Seats: (first, bis, eco)" 
+                  << ac->getFirstClassCapacity() << " "
+                  << ac->getBusinessClassCapacity() << " "
+                  << ac->getEconomyClassCapacity() << " "
+                  << " | Status: " << ac->getMaintenanceStatus() << "\n";
+    }
+}
+
+// ============================================================================
+// Manage Users Menu & Handlers
+// ============================================================================
+
 void ConsoleUI::showManageUsersMenu() {
-    // Stub
+    while (true) {
+        std::cout << "\n--- Manage Users ---\n"
+                  << "1. Add New User\n"
+                  << "2. Update Existing User\n"
+                  << "3. Remove User\n"
+                  << "4. View All Users\n"
+                  << "5. Back to Administrator Menu\n";
+
+        int choice = getIntInput("Enter choice: ");
+        switch (choice) {
+            case 1: handleAddUser(); break;
+            case 2: handleUpdateUser(); break;
+            case 3: handleRemoveUser(); break;
+            case 4: handleViewAllUsers(); break;
+            case 5: return;
+            default: std::cout << "Invalid choice. Please try again.\n"; break;
+        }
+    }
+}
+
+void ConsoleUI::handleAddUser() {
+    std::cout << "\n--- Add New User ---\n";
+    std::cout << "Select Role:\n"
+              << "1. Administrator\n"
+              << "2. Booking Agent\n"
+              << "3. Passenger\n";
+
+    int roleChoice = getIntInput("Enter role choice: ");
+    auto role = intToRole(roleChoice);
+    if(!role){
+        std::cout << "Invalid role choice!";
+        return;
+    }
+    std::string name     = getStringInput("Enter Full Name: ");
+    std::string username = getStringInput("Enter Username: ");
+    std::string password = getStringInput("Enter Password: ");
+    std::string email    = getStringInput("Enter Email: ");
+    std::string phone    = getStringInput("Enter Phone Number: ");
+
+    bool success = app_.addUser(role.value(), name, username, password, email, phone);
+    if (success) {
+        std::cout << "\nUser '" << username << "' added successfully.\n";
+    } else {
+        std::cout << "\nError: Username already exists or role choice is invalid.\n";
+    }
+}
+
+void ConsoleUI::handleUpdateUser() {
+    std::cout << "\n--- Update Existing User ---\n";
+    std::string username = getStringInput("Enter Username of User to update: ");
+
+    auto user = app_.getUserByUsername(username);
+    if (!user) {
+        std::cout << "Error: User '" << username << "' not found.\n";
+        return;
+    }
+
+    std::string newPassword = getStringInput("Enter New Password (or press enter to skip): ");
+    std::string newName     = getStringInput("Enter New Name (or press enter to skip): ");
+
+    if (!newPassword.empty()) user->setPassword(newPassword);
+    if (!newName.empty())     user->setName(newName);
+
+    std::cout << "User '" << username << "' updated successfully.\n";
+}
+
+void ConsoleUI::handleRemoveUser() {
+    std::cout << "\n--- Remove User ---\n";
+    std::string username = getStringInput("Enter Username to remove: ");
+
+    if (app_.removeUser(username)) {
+        std::cout << "User '" << username << "' successfully removed.\n";
+    } else {
+        std::cout << "Error: User '" << username << "' not found.\n";
+    }
+}
+
+void ConsoleUI::handleViewAllUsers() {
+    std::cout << "\n--- All Users ---\n";
+    const auto& users = app_.getAllUsers();
+    if (users.empty()) {
+        std::cout << "No users found.\n";
+        return;
+    }
+
+    for (const auto& user : users) {
+        if (!user) continue;
+        std::cout << "ID: " << user->getId()
+                  << " | Username: " << user->getUsername()
+                  << " | Name: " << user->getName()
+                  << " | Role: " << toString(user->getRole()) << "\n";
+    }
 }
 
 void ConsoleUI::showGenerateReportsMenu() {
@@ -528,15 +701,207 @@ void ConsoleUI::handleUserActivityReport() {
 // ==========================================
 
 void ConsoleUI::handleAgentSearchFlights() {
-    // Stub
+    std::cout << "\n--- Booking Agent: Search Flights ---\n";
+
+    std::string origin      = getStringInput("Enter Origin: ");
+    std::string destination = getStringInput("Enter Destination: ");
+
+    // Fetch matching flights for origin and destination
+    auto matchingFlights = app_.searchFlights(origin, destination);
+
+    if (matchingFlights.empty()) {
+        std::cout << "\nNo flights found from " << origin << " to " << destination << ".\n";
+        return;
+    }
+
+    // Prompt agent for date (press Enter to skip)
+    std::cout << "Enter Target Departure Date (DD/MM/YYYY) [Press Enter to skip]: ";
+    std::string dateInput;
+    std::getline(std::cin, dateInput);
+
+    if (!dateInput.empty()) {
+        Date targetDate = Date::parseString(dateInput);
+
+        // Sort matching flights chronologically (ascending order)
+        std::sort(matchingFlights.begin(), matchingFlights.end(),
+            [](const std::shared_ptr<Flight>& a, const std::shared_ptr<Flight>& b) {
+                Date dateA = a->getDate();
+                Date dateB = b->getDate();
+                return !(dateA > dateB); // Ascending order
+            });
+
+        std::shared_ptr<Flight> flightBefore = nullptr;
+        std::vector<std::shared_ptr<Flight>> flightsAfter;
+
+        for (const auto& flight : matchingFlights) {
+            Date flightDate = flight->getDate();
+
+            if (targetDate > flightDate) {
+                // Updates continuously to the closest flight strictly before targetDate
+                flightBefore = flight; 
+            } else {
+                // Collects ALL flights occurring on or after targetDate
+                flightsAfter.push_back(flight);
+            }
+        }
+
+        std::cout << "\n--- Search Results Near Date: " << dateInput << " ---\n";
+
+        // 1. Single flight just before target date
+        if (flightBefore) {
+            std::cout << "\n[ Flight Just BEFORE " << dateInput << " ]\n"
+                      << "Flight Number : " << flightBefore->getFlightNumber() << "\n"
+                      << "Departure     : " << flightBefore->getDate() << "\n";
+        } else {
+            std::cout << "\n[ Flight Just BEFORE " << dateInput << " ] : None found.\n";
+        }
+
+        // 2. ALL flights on or after target date
+        std::cout << "\n[ Flights On / AFTER " << dateInput << " ]\n";
+        if (flightsAfter.empty()) {
+            std::cout << "None found.\n";
+        } else {
+            int option = 1;
+            for (const auto& flight : matchingFlights) {
+                std::cout << option++ << ". Flight Number: " << flight->getFlightNumber() << "\n"
+                        << "   Departure:     " << flight->getDate() << "\n";
+            }
+        }
+    } else {
+        // Date skipped: Show all matching flights directly
+        std::cout << "\n--- All Available Flights (" << origin << " -> " << destination << ") ---\n";
+        int option = 1;
+        for (const auto& flight : matchingFlights) {
+            std::cout << option++ << ". Flight Number: " << flight->getFlightNumber() << "\n"
+                      << "   Departure:     " << flight->getDate() << "\n";
+        }
+    }
+
+    // Optional flight details lookup
+    std::cout << "\n";
+    std::string flightChoice = getStringInput("Enter Flight Number to view details (or '0' to cancel): ");
+
+    if (flightChoice == "0" || flightChoice.empty()) {
+        return;
+    }
+
+    // Match chosen flight number
+    std::shared_ptr<Flight> selectedFlight = nullptr;
+    for (const auto& flight : matchingFlights) {
+        if (flight->getFlightNumber() == flightChoice) {
+            selectedFlight = flight;
+            break;
+        }
+    }
+
+    if (!selectedFlight) {
+        std::cout << "Invalid Flight Number selected.\n";
+        return;
+    }
+
+    // Display detailed flight information
+    auto [firstAvail, bizAvail, econAvail] = selectedFlight->getAvailableSeatsPerClass();
+
+    std::cout << "\n--- Flight Details (" << selectedFlight->getFlightNumber() << ") ---\n"
+              << "Route           : " << selectedFlight->getOrigin() << " -> " << selectedFlight->getDestination() << "\n"
+              << "Departure       : " << selectedFlight->getDate() << "\n"
+              << "Available Seats : First: " << firstAvail 
+              << " | Business: " << bizAvail 
+              << " | Economy: " << econAvail << "\n";
 }
 
-void ConsoleUI::handleAgentBookFlight() {
-    // Stub
+
+void ConsoleUI::handleAgentBookConfirm() {
+    std::cout << "\n--- Booking Agent: Confirm Booking Request ---\n";
+
+    // Retrieve all booking requests via the application layer
+    auto requests = app_.getAllBookingRequests();
+
+    if (requests.empty()) {
+        std::cout << "No booking requests available.\n";
+        return;
+    }
+
+    // Display all booking requests with details
+    std::cout << "\n--- Booking Requests List ---\n";
+    for (const auto& req : requests) {
+        if (!req) continue;
+
+        auto passenger = req->passenger.lock();
+        auto flight    = req->flight.lock();
+
+        std::cout << "Request ID   : " << req->id << "\n"
+                  << "  Passenger  : " << (passenger ? passenger->getName() + " (ID: " + passenger->getId() + ")" : "N/A") << "\n"
+                  << "  Flight     : " << (flight ? flight->getFlightNumber() + " (" + flight->getOrigin() + " -> " + flight->getDestination() + ")" : "N/A") << "\n"
+                  << "  Departure  : " << (flight ? toString(flight->getDate()) : "N/A") << "\n"
+                  << "  Status     : " << toString(req->status) << "\n"
+                  << "----------------------------------------\n";
+    }
+
+    // Prompt agent for choice
+    std::string reqIdChoice = getStringInput("Enter Request ID to confirm (or '0' to cancel): ");
+
+    if (reqIdChoice == "0" || reqIdChoice.empty()) {
+        return;
+    }
+
+    // Call Application layer function to set status to ConfirmedBook
+    bool success = app_.confirmBookingRequest(reqIdChoice);
+
+    if (success) {
+        std::cout << "\nSuccess: Booking Request '" << reqIdChoice 
+                  << "' status updated to ConfirmedBook!\n"
+                  << "The passenger can now convert this confirmed booking into a check-in request.\n";
+    } else {
+        std::cout << "\nError: Booking Request ID '" << reqIdChoice << "' not found.\n";
+    }
 }
 
-void ConsoleUI::handleModifyReservation() {
-    // Stub
+
+
+void ConsoleUI::handleAgentCheckInConfirm() {
+    std::cout << "\n--- Booking Agent: Confirm Check-In Request ---\n";
+
+    // 1. Fetch check-in requests from Application layer
+    auto requests = app_.getAllCheckInRequests();
+
+    if (requests.empty()) {
+        std::cout << "No check-in requests available.\n";
+        return;
+    }
+
+    // 2. Display all check-in requests
+    std::cout << "\n--- Check-In Requests List ---\n";
+    for (const auto& req : requests) {
+        if (!req) continue;
+
+        auto passenger = req->passenger.lock();
+        auto flight    = req->flight.lock();
+
+        std::cout << "Check-In ID  : " << req->id << "\n"
+                  << "  Passenger  : " << (passenger ? passenger->getName() + " (ID: " + passenger->getId() + ")" : "N/A") << "\n"
+                  << "  Flight     : " << (flight ? flight->getFlightNumber() + " (" + flight->getOrigin() + " -> " + flight->getDestination() + ")" : "N/A") << "\n"
+                  << "  Departure  : " << (flight ? toString(flight->getDate()) : "N/A") << "\n"
+                  << "  Status     : " << toString(req->status) << "\n"
+                  << "----------------------------------------\n";
+    }
+
+    // 3. Prompt agent for selection or cancel
+    std::string reqIdChoice = getStringInput("Enter Check-In ID to confirm (or '0' to cancel): ");
+
+    if (reqIdChoice == "0" || reqIdChoice.empty()) {
+        return;
+    }
+
+    // 4. Update status via Application layer
+    bool success = app_.confirmCheckInRequest(reqIdChoice);
+
+    if (success) {
+        std::cout << "\nSuccess: Check-In Request '" << reqIdChoice 
+                  << "' has been successfully confirmed!\n";
+    } else {
+        std::cout << "\nError: Check-In Request ID '" << reqIdChoice << "' not found.\n";
+    }
 }
 
 void ConsoleUI::handleCancelReservation() {
@@ -589,6 +954,12 @@ void ConsoleUI::handlePassengerSearchFlights() {
         return;
     }
 
+    auto currentPassenger = dynamic_pointer_cast<Passenger>(app_.getCurrentUser());
+    if (app_.isDuplicatedBookingReq(currentPassenger, selectedFlight)) {
+        cout << "\nYou are already booked on flight " << selectedFlight->getFlightNumber() << "!\n";
+        return;
+    }
+
     // Display available seat tier summary
     auto [firstAvail, bizAvail, econAvail] = selectedFlight->getAvailableSeatsPerClass();
 
@@ -603,7 +974,6 @@ void ConsoleUI::handlePassengerSearchFlights() {
     else if (classChoice == 2) chosenClass = SeatClass::Business;
 
     // Single system call handles find seat + assign seat + create request
-    auto currentPassenger = dynamic_pointer_cast<Passenger>(app_.getCurrentUser());
     auto bookingReq = app_.createBookingRequest(currentPassenger, selectedFlight, chosenClass);
 
     if (bookingReq) {
@@ -616,83 +986,148 @@ void ConsoleUI::handlePassengerSearchFlights() {
 }
 
 void ConsoleUI::handleViewMyReservations() {
-    cout << "\n--- My Reservations ---\n";
+    std::cout << "\n--- My Reservations & Travel History ---\n";
 
-    auto currentPassenger = dynamic_pointer_cast<Passenger>(app_.getCurrentUser());
+    // 1. Retrieve the logged-in passenger
+    auto currentPassenger = std::dynamic_pointer_cast<airline::Passenger>(app_.getCurrentUser());
     if (!currentPassenger) {
-        cout << "Error: Current logged-in user is not a valid Passenger.\n";
+        std::cout << "Error: Current logged-in user is not a valid Passenger.\n";
         return;
     }
 
-    cout << "Fetching reservations for Passenger " << currentPassenger->getUsername() << "...\n\n";
+    std::cout << "Fetching reservations and travel history for Passenger " << currentPassenger->getName() << "...\n\n";
 
-    auto bookings = app_.getBookingRequestsForPassenger(currentPassenger);
+    // 2. Fetch booking requests, check-in requests, and travel history
+    const auto& bookings      = currentPassenger->getBookingRequests();
+    const auto& checkIns      = currentPassenger->getCheckInRequests(); 
+    const auto& travelHistory = currentPassenger->getTravelHistory(); // or getFinishedRequests()
+
+    if (bookings.empty() && checkIns.empty() && travelHistory.empty()) {
+        std::cout << "No active reservations or travel history found.\n";
+        return;
+    }
+
+    // 3. Display Booking Requests
+    std::cout << "=== Booking Requests ===\n";
     if (bookings.empty()) {
-        cout << "No reservations found.\n";
-        return;
+        std::cout << "No booking requests found.\n\n";
+    } else {
+        for (size_t i = 0; i < bookings.size(); ++i) {
+            const auto& req = bookings[i];
+            if (!req) continue;
+
+            std::cout << (i + 1) << ". Booking ID : " << req->id << "\n";
+            if (auto flight = req->flight.lock()) {
+                std::cout << "   Flight     : " << flight->getFlightNumber() 
+                          << " (" << flight->getOrigin() << " -> " << flight->getDestination() << ")\n"
+                          << "   Departure  : " << flight->getDate() << "\n";
+            } else {
+                std::cout << "   Flight     : N/A\n";
+            }
+            std::cout << "   Seat Class : " << airline::toString(req->seatClass) << "\n";
+            std::cout << "   Price      : $" << req->price << "\n";
+            std::cout << "   Status     : " << airline::toString(req->status) << "\n\n";
+        }
     }
 
-    for (size_t i = 0; i < bookings.size(); ++i) {
-        const auto& req = bookings[i];
-        cout << (i + 1) << ". Reservation ID: " << req->id << "\n"
-                  << "   Flight: " << req->flight->getFlightNumber() 
-                  << " from " << req->flight->getOrigin() 
-                  << " to " << req->flight->getDestination() << "\n"
-                  << "   Departure: " << req->flight->getDate() << "\n"
-                  << "   Status: " << statusToString(req->status) << "\n\n";
+    // 4. Display Check-In Requests
+    std::cout << "=== Check-In Requests ===\n";
+    if (checkIns.empty()) {
+        std::cout << "No check-in requests found.\n\n";
+    } else {
+        for (size_t i = 0; i < checkIns.size(); ++i) {
+            const auto& req = checkIns[i];
+            if (!req) continue;
+
+            std::cout << (i + 1) << ". Check-In ID: " << req->id << "\n";
+            if (auto flight = req->flight.lock()) {
+                std::cout << "   Flight     : " << flight->getFlightNumber() 
+                          << " (" << flight->getOrigin() << " -> " << flight->getDestination() << ")\n"
+                          << "   Departure  : " << flight->getDate() << "\n";
+            } else {
+                std::cout << "   Flight     : N/A\n";
+            }
+            std::cout << "   Seat Class : " << airline::toString(req->seatClass) << "\n";
+            std::cout << "   Price      : $" << req->price << "\n";
+            std::cout << "   Status     : " << airline::toString(req->status) << "\n\n";
+        }
+    }
+
+    // 5. Display Travel History (Completed / Confirmed Requests)
+    std::cout << "=== Travel History ===\n";
+    if (travelHistory.empty()) {
+        std::cout << "No past travel history found.\n\n";
+    } else {
+        for (size_t i = 0; i < travelHistory.size(); ++i) {
+            const auto& record = travelHistory[i];
+
+            std::cout << (i + 1)  << "   Flight      : " << record.flightNumber 
+                      << " (" << record.origin << " -> " << record.destination << ")\n"
+                      << "   Departure   : " << record.date << "\n"
+                      << "   Seat Class  : " << airline::toString(record.seatClass) << "\n"
+                      << "   Price       : $" << record.price << "\n";
+        }
     }
 }
 
 void ConsoleUI::handleCheckIn() {
-    cout << "\n--- Check-In ---\n";
+    std::cout << "\n--- Check-In ---\n";
 
-    auto currentPassenger = dynamic_pointer_cast<Passenger>(app_.getCurrentUser());
+    auto currentPassenger = std::dynamic_pointer_cast<airline::Passenger>(app_.getCurrentUser());
     if (!currentPassenger) {
-        cout << "Error: Current logged-in user is not a valid Passenger.\n";
+        std::cout << "Error: Current logged-in user is not a valid Passenger.\n";
         return;
     }
 
-    string resId = getStringInput("Enter Reservation ID: ");
+    std::string resId = getStringInput("Enter Reservation ID (if you don't know it, invoke '2. View My Reservations' ): ");
 
-    // Verify reservation ownership
-    auto myBookings = app_.getBookingRequestsForPassenger(currentPassenger);
-    shared_ptr<BookingRequest> targetBooking = nullptr;
-
-    for (const auto& booking : myBookings) {
-        if (booking->id == resId) {
-            targetBooking = booking;
+    // Verify reservation ownership directly from passenger's booking list
+    std::shared_ptr<airline::BookingRequest> bookReq = nullptr;
+    for (const auto& booking : currentPassenger->getBookingRequests()) {
+        if (booking && booking->id == resId) {
+            bookReq = booking;
             break;
         }
     }
 
-    if (!targetBooking) {
-        cout << "\nError: Reservation ID " << resId << " not found or does not belong to you.\n";
+    if (!bookReq) {
+        std::cout << "\nError: Reservation ID " << resId << " not found or does not belong to you.\n";
         return;
     }
 
-    if (targetBooking->status != RequestStatus::Confirmed) {
-        cout << "\nCheck-In failed: Your reservation is currently " 
-                  << statusToString(targetBooking->status) 
+    if (bookReq->status != airline::ReservationStatus::ConfirmedBook) {
+        std::cout << "\nCheck-In failed: Your reservation is currently " 
+                  << toString(bookReq->status) 
                   << ". It must be Confirmed by an agent first.\n";
         return;
     }
 
-    // Submit check-in request if not already submitted
-    auto checkInReq = app_.getCheckInRequest(currentPassenger, targetBooking->flight);
+    // Submit check-in request
+    auto checkInReq = app_.createCheckInRequest(currentPassenger, bookReq);
     if (!checkInReq) {
-        checkInReq = app_.createCheckInRequest(currentPassenger, targetBooking->flight);
+        std::cout << "\nCheck-In failed: System could not process check-in request.\n";
+        return;
     }
 
-    cout << "\nCheck-In Successful!\n"
+    // Lock weak_ptr<Flight> to print boarding pass details
+    auto flight = bookReq->flight.lock();
+
+    std::cout << "\nCheck-In Successful!\n"
               << "Boarding Pass:\n"
               << "-----------------------------\n"
-              << "Reservation ID: " << targetBooking->id << "\n"
-              << "Passenger: " << currentPassenger->getName() << "\n"
-              << "Flight: " << targetBooking->flight->getFlightNumber() << "\n"
-              << "Origin: " << targetBooking->flight->getOrigin() << "\n"
-              << "Destination: " << targetBooking->flight->getDestination() << "\n"
-              << "Departure: " << targetBooking->flight->getDate() << "\n"
-              << "-----------------------------\n";
+              << "Reservation ID: " << checkInReq->id << "\n"
+              << "Passenger: " << currentPassenger->getName() << "\n";
+
+    if (flight) {
+        std::cout << "Flight: " << flight->getFlightNumber() << "\n"
+                  << "Origin: " << flight->getOrigin() << "\n"
+                  << "Destination: " << flight->getDestination() << "\n"
+                  << "Departure: " << flight->getDate() << "\n";
+    } else {
+        std::cout << "Flight: N/A\n";
+    }
+
+    std::cout << "-----------------------------\n";
 }
 
 } // namespace airline
