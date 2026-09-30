@@ -1,69 +1,1216 @@
 {
-  "administrators": [
-    {
-      "id": "A001",
-      "name": "System Admin",
-      "email": "admin@airline.com",
-      "phone": "+1-555-0100",
-      "username": "admin",
-      "password": "adminpassword"
-    }
-  ],
-  "bookingAgents": [
-    {
-      "id": "AG001",
-      "name": "Sarah Agent",
-      "email": "sarah@airline.com",
-      "phone": "+1-555-0101",
-      "username": "agent1",
-      "password": "agentpassword"
-    }
-  ],
-  "passengers": [
-    {
-      "id": "P001",
-      "name": "John Doe",
-      "email": "john@example.com",
-      "phone": "+1-555-0199",
-      "username": "johndoe",
-      "password": "userpassword",
-      "loyaltyPoints": 1500
-    }
-  ],
-  "pilots": [
-    {
-      "id": "PL001",
-      "name": "Captain Bob",
-      "email": "bob@airline.com",
-      "phone": "+1-555-0102",
-      "licenseId": "LIC-99823",
-      "flightHours": 1250.5
-    }
-  ],
-  "flightAttendants": [
-    {
-      "id": "FA001",
-      "name": "Alice Smith",
-      "email": "alice@airline.com",
-      "phone": "+1-555-0103",
-      "licenseId": "FA-44120",
-      "flightHours": 620.0
-    }
-  ],
-  "aircraft": [
-    {
-      "tailNumber": "N123AA",
-      "model": "Boeing 737-800",
-      "runningHours": 1500.0,
-      "maxRunningHours": 10000.0,
-      "seatLayout": {
-        "economy": 120,
-        "business": 20,
-        "first": 8
-      }
-    }
-  ],
-  "flights": [],
-  "bookingRequests": [],
-  "checkInRequests": []
+    "administrators": [
+        {
+            "email": "admin@airline.com",
+            "id": "A001",
+            "name": "System Admin",
+            "passwordHash": "e59db4fb4bc2f1ce8dc02f36550c9e81b35d543a1d1adee546aed41cfa86ab04",
+            "phone": "+1-555-0100",
+            "username": "admin"
+        }
+    ],
+    "aircraft": [
+        {
+            "maintenanceStatus": "Airworthy",
+            "maxRunningHours": 10000.0,
+            "model": "Boeing 737-800",
+            "runningHours": 1508.0,
+            "seats": [
+                {
+                    "occupied": false,
+                    "seatId": "C17"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C95"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C24"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C41"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C15"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C75"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B20"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C25"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C19"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C45"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C16"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C18"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C89"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C11"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C57"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B15"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C56"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C22"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C108"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C94"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C13"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C98"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C33"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C113"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C9"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C77"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C91"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B10"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C112"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C117"
+                },
+                {
+                    "occupied": true,
+                    "passengerId": "P001",
+                    "seatId": "C55"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C66"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C105"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C83"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C84"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C40"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C52"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C35"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C110"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C90"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C43"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C71"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C107"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C47"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C14"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B11"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C93"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C60"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C34"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C68"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C65"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C88"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C64"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C67"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C72"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C36"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C114"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C53"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C50"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C12"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C26"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C63"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C100"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C23"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C29"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C38"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C111"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C87"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C37"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B17"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C76"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B13"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C85"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C92"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B14"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B18"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C80"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C118"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C48"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C73"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C99"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C82"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C104"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C101"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C74"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C96"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C97"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C20"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C79"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C78"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C86"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C119"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C62"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C116"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C27"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C69"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C21"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C28"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C54"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C49"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C70"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C115"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C30"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C106"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C103"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B19"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C102"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C109"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C31"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B9"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C10"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B16"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B12"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C32"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C51"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C58"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C46"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C39"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C44"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C120"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C81"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C59"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C61"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C42"
+                }
+            ],
+            "tailNumber": "N123AA"
+        },
+        {
+            "maintenanceStatus": "Airworthy",
+            "maxRunningHours": 8.0,
+            "model": "Boeing 787-900",
+            "runningHours": 6.0,
+            "seats": [
+                {
+                    "occupied": false,
+                    "seatId": "A6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C10"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C74"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C14"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C49"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C33"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C56"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C22"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B20"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B17"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C76"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B22"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C42"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C61"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C57"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B15"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C37"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C50"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B21"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B23"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C59"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C13"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C9"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C16"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C19"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C25"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C75"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B24"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C54"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C27"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C21"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C69"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B6"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C12"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C26"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C58"
+                },
+                {
+                    "occupied": true,
+                    "passengerId": "P002",
+                    "seatId": "A5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C28"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C20"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C17"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C23"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C62"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C51"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C32"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C35"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C30"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C40"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C52"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C29"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B16"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B10"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B19"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C77"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C64"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C60"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C15"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C24"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C3"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B9"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C1"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B11"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C36"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C31"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C53"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A2"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B7"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C65"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C44"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B18"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B14"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C48"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C80"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C63"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B12"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C70"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C73"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C78"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C66"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C55"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C79"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C38"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C47"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C71"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C43"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C68"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C34"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C41"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C46"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "A4"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C67"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C72"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C39"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C45"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "B13"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C5"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C8"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C11"
+                },
+                {
+                    "occupied": false,
+                    "seatId": "C18"
+                }
+            ],
+            "tailNumber": "B789MM"
+        }
+    ],
+    "bookingAgents": [
+        {
+            "email": "sarah@airline.com",
+            "id": "AG001",
+            "name": "Sarah Agent",
+            "passwordHash": "700e6f498de70ab4901888fe8f059565635d7f33d632569ed8f597daf345484e",
+            "phone": "+1-555-0101",
+            "username": "agent"
+        }
+    ],
+    "bookingRequests": [],
+    "checkInRequests": [],
+    "finishedRequests": [
+        {
+            "checkInId": "CR-1",
+            "departureDate": "09/12/2026 : 09:30",
+            "destination": "america",
+            "flightNumber": "1230056",
+            "origin": "egypt",
+            "passengerId": "P001",
+            "passengerName": "seif samir",
+            "paymentStatus": "Completed",
+            "price": 1000,
+            "reservationStatus": "Confirmed",
+            "seatClass": "Economy"
+        },
+        {
+            "checkInId": "CR-2",
+            "departureDate": "21/09/2026 : 00:00",
+            "destination": "america",
+            "flightNumber": "1230064",
+            "origin": "egypt",
+            "passengerId": "P002",
+            "passengerName": "ibrahim mohsen",
+            "paymentStatus": "Completed",
+            "price": 3750,
+            "reservationStatus": "Confirmed",
+            "seatClass": "First"
+        }
+    ],
+    "flightAttendants": [
+        {
+            "email": "mark.johnson@airline.com",
+            "flightHours": 396.5,
+            "id": "FA002",
+            "licenseId": "FA-55231",
+            "name": "Mark Johnson",
+            "phone": "+1-555-0105"
+        },
+        {
+            "email": "alice@airline.com",
+            "flightHours": 628.0,
+            "id": "FA001",
+            "licenseId": "FA-44120",
+            "name": "Alice Smith",
+            "phone": "+1-555-0103"
+        }
+    ],
+    "flights": [
+        {
+            "aircraftTailNumber": "N123AA",
+            "assignedFlightAttendants": [
+                "FA001"
+            ],
+            "assignedPilots": [
+                "PL001"
+            ],
+            "basePrice": 1000,
+            "crewRegulations": [
+                {
+                    "minFlightHours": 400.0
+                }
+            ],
+            "date": "09/12/2026 : 09:30",
+            "destination": "america",
+            "durationHours": 8.0,
+            "flightNumber": "1230056",
+            "origin": "egypt",
+            "status": "Departed"
+        },
+        {
+            "aircraftTailNumber": "B789MM",
+            "assignedFlightAttendants": [
+                "FA002"
+            ],
+            "assignedPilots": [
+                "PL002"
+            ],
+            "basePrice": 1500,
+            "crewRegulations": [
+                {
+                    "minFlightHours": 300.0
+                }
+            ],
+            "date": "21/09/2026 : 00:00",
+            "destination": "america",
+            "durationHours": 6.0,
+            "flightNumber": "1230064",
+            "origin": "egypt",
+            "status": "Departed"
+        }
+    ],
+    "passengers": [
+        {
+            "balance": 0,
+            "email": "john@example.com",
+            "id": "P001",
+            "loyaltyPoints": 2500,
+            "name": "seif samir",
+            "passwordHash": "d7a5198aa509822c398a165b6803bf212a4cc353a3a465c719fcd3feaf668710",
+            "phone": "+1-555-0199",
+            "username": "seif"
+        },
+        {
+            "balance": 250,
+            "email": "ibrahim@gmail.com",
+            "id": "P002",
+            "loyaltyPoints": 7500,
+            "name": "ibrahim mohsen",
+            "passwordHash": "1a2b11fbe0062ece927f4990af13cb09079f5a34b6bbfe8b26f5d68258ff6159",
+            "phone": "01201201200",
+            "username": "ibrahim"
+        }
+    ],
+    "pilots": [
+        {
+            "email": "jane.doe@airline.com",
+            "flightHours": 856.0,
+            "id": "PL002",
+            "licenseId": "LIC-10492",
+            "name": "First Officer Jane Doe",
+            "phone": "+1-555-0104"
+        },
+        {
+            "email": "bob@airline.com",
+            "flightHours": 1258.5,
+            "id": "PL001",
+            "licenseId": "LIC-99823",
+            "name": "Captain Bob",
+            "phone": "+1-555-0102"
+        }
+    ]
 }

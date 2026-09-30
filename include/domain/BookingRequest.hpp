@@ -13,7 +13,7 @@ struct BookingRequest {
     std::weak_ptr<Flight> flight;
     SeatClass seatClass{SeatClass::Economy};
     int price{0};
-    ReservationStatus status{ReservationStatus::NoReservation};
+    ReservationStatus status{ReservationStatus::PendingCheckIn};
 };
 
 inline std::ostream& operator<<(std::ostream& os, const BookingRequest& req) {
@@ -35,7 +35,7 @@ struct CheckInRequest {
     std::weak_ptr<Flight> flight;
     SeatClass seatClass{SeatClass::Economy};
     int price{0};
-    ReservationStatus status{ReservationStatus::NoReservation};
+    ReservationStatus status{ReservationStatus::PendingBook};
 };
 
 inline std::ostream& operator<<(std::ostream& os, const CheckInRequest& req) {
@@ -78,5 +78,10 @@ inline std::ostream& operator<<(std::ostream& os, const FinishedRequest& req) {
        << " | Status: " << toString(req.reservationStatus);
     return os;
 }
+
+struct RequestReply{
+    bool idFound = true;
+    PaymentStatus payStatus = PaymentStatus::Completed;
+};
 
 }  // namespace airline

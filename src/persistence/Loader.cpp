@@ -155,17 +155,16 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
             std::string name = entry.at("name").get<std::string>();
             contactInfo contact = buildContactInfo(entry);
             std::string username = entry.at("username").get<std::string>();
-            std::string password;
+            std::string hashedPassword;
             if (entry.contains("passwordHash")) {
-                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
-                password = PasswordHasher::deHashPassword(hashedPassword);
+                hashedPassword = entry.at("passwordHash").get<std::string>();
             } else if (entry.contains("password")) {
-                password = entry.at("password").get<std::string>();
+                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
             } else {
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
 
-            auto admin = std::make_shared<Administrator>(id, name, contact, username, password);
+            auto admin = std::make_shared<Administrator>(id, name, contact, username, hashedPassword);
             app.admins_.add(id, admin);
         } catch (const std::exception& e) {
             std::cerr << "Skipping malformed administrator entry: " << e.what() << "\n";
@@ -179,17 +178,16 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
             std::string name = entry.at("name").get<std::string>();
             contactInfo contact = buildContactInfo(entry);
             std::string username = entry.at("username").get<std::string>();
-            std::string password;
+            std::string hashedPassword;
             if (entry.contains("passwordHash")) {
-                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
-                password = PasswordHasher::deHashPassword(hashedPassword);
+                hashedPassword = entry.at("passwordHash").get<std::string>();
             } else if (entry.contains("password")) {
-                password = entry.at("password").get<std::string>();
+                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
             } else {
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
 
-            auto agent = std::make_shared<BookingAgent>(id, name, contact, username, password);
+            auto agent = std::make_shared<BookingAgent>(id, name, contact, username, hashedPassword);
             app.agentRepo_.add(id, agent);
         } catch (const std::exception& e) {
             std::cerr << "Skipping malformed booking agent entry: " << e.what() << "\n";
@@ -203,12 +201,11 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
             std::string name = entry.at("name").get<std::string>();
             contactInfo contact = buildContactInfo(entry);
             std::string username = entry.at("username").get<std::string>();
-            std::string password;
+            std::string hashedPassword;
             if (entry.contains("passwordHash")) {
-                std::string hashedPassword = entry.at("passwordHash").get<std::string>();
-                password = PasswordHasher::deHashPassword(hashedPassword);
+                hashedPassword = entry.at("passwordHash").get<std::string>();
             } else if (entry.contains("password")) {
-                password = entry.at("password").get<std::string>();
+                hashedPassword = PasswordHasher::hashPassword(entry.at("password").get<std::string>());
             } else {
                 throw std::runtime_error("entry missing both 'password' and 'passwordHash'");
             }
@@ -217,7 +214,7 @@ void Loader::loadFromJson(AirlineApplication& app, const std::string& filePath) 
             int balance = entry.value("balance", 0);
 
             // Pass balance as the 6th argument to Passenger constructor
-            auto passenger = std::make_shared<Passenger>(id, name, contact, username, password, balance);
+            auto passenger = std::make_shared<Passenger>(id, name, contact, username, hashedPassword, balance);
 
             if (entry.contains("loyaltyPoints")) {
                 passenger->earnLoyaltyPoints(entry.at("loyaltyPoints").get<int>());

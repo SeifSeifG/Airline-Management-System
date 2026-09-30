@@ -6,7 +6,7 @@
       "email": "admin@airline.com",
       "phone": "+1-555-0100",
       "username": "admin",
-      "password": "adminpassword"
+      "password": "admin123"
     }
   ],
   "bookingAgents": [
@@ -15,8 +15,8 @@
       "name": "Sarah Agent",
       "email": "sarah@airline.com",
       "phone": "+1-555-0101",
-      "username": "agent1",
-      "password": "agentpassword"
+      "username": "agent",
+      "password": "agent123"
     }
   ],
   "passengers": [
@@ -25,8 +25,9 @@
       "name": "John Doe",
       "email": "john@example.com",
       "phone": "+1-555-0199",
-      "username": "johndoe",
-      "password": "userpassword",
+      "username": "seif",
+      "password": "seif123",
+      "balance": 500,
       "loyaltyPoints": 1500
     }
   ],
@@ -38,9 +39,17 @@
       "phone": "+1-555-0102",
       "licenseId": "LIC-99823",
       "flightHours": 1250.5
+    },
+    {
+      "id": "PL002",
+      "name": "First Officer Jane Doe",
+      "email": "jane.doe@airline.com",
+      "phone": "+1-555-0104",
+      "licenseId": "LIC-10492",
+      "flightHours": 850.0
     }
   ],
-  "flightAttendants": [
+  "flightAttendants": [ 
     {
       "id": "FA001",
       "name": "Alice Smith",
@@ -48,6 +57,14 @@
       "phone": "+1-555-0103",
       "licenseId": "FA-44120",
       "flightHours": 620.0
+    },
+    {
+      "id": "FA002",
+      "name": "Mark Johnson",
+      "email": "mark.johnson@airline.com",
+      "phone": "+1-555-0105",
+      "licenseId": "FA-55231",
+      "flightHours": 390.5 
     }
   ],
   "aircraft": [
@@ -59,11 +76,8 @@
       "seatLayout": {
         "economy": 120,
         "business": 20,
-        "first": 8
+        "first": 8 
       }
     }
-  ],
-  "flights": [],
-  "bookingRequests": [],
-  "checkInRequests": []
+  ]
 }

@@ -8,9 +8,8 @@ Aircraft::Aircraft(std::string tailNumber, std::string model, float maxRunningHo
     tailNumber_(std::move(tailNumber)),
     model_(std::move(model)),
     seatLayout_(std::move(seatMap)),
-    maxRunningHours_(maxRunningHours)
-    {}
-
+    maxRunningHours_(maxRunningHours),
+    runningHours_(0) {}
 
 const std::string& Aircraft::getTailNumber() const { return tailNumber_; }
 const std::string& Aircraft::getModel() const { return model_; }

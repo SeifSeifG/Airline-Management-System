@@ -10,7 +10,7 @@
 #include "services/AuthService.hpp"
 #include "services/BookCheckInService.hpp"
 #include "services/CrewService.hpp"
-#include "services/FlightSchedulingService.hpp"
+#include "services/FlightManagementService.hpp"
 #include "services/ReportingService.hpp"
 #include "services/AircraftManagementService.hpp"
 #include "services/UserService.hpp"
@@ -49,7 +49,7 @@ private:
     // services
     AuthService authService_{passengerRepo_, admins_, agentRepo_};
     BookingService bookingService_{flightRepo_, bookingRequests_, checkInRequests_, finishedRequests_};
-    FlightSchedulingService flightService_{flightRepo_, aircraftRepo_};
+    FlightManagementService flightService_{flightRepo_, aircraftRepo_, bookingService_};
     AircraftManagementService aircraftService_{aircraftRepo_};
     CrewService crewService_{pilots_, flightAtts_};
     ReportingService reportingService_{flightRepo_, aircraftRepo_};
@@ -58,7 +58,6 @@ private:
     UserService<Administrator> userAdminService_{admins_};
 
     std::shared_ptr<User> currentUser_ = nullptr;
-
 public:
     explicit AirlineApplication(const std::string& dataFilePath);
     ~AirlineApplication();
@@ -87,7 +86,7 @@ public:
     std::vector<std::shared_ptr<BookingRequest>> getBookingRequestsForPassenger(const std::shared_ptr<Passenger>& passenger) const;
 
     // Check-in request queries
-    bool confirmBookingRequest(const std::string& bookingRequestId);
+    RequestReply confirmBookingRequest(const std::string& bookingRequestId);
     std::shared_ptr<CheckInRequest> createCheckInRequest(
         const std::shared_ptr<Passenger>& passenger, 
         const std::shared_ptr<BookingRequest>& req);
@@ -115,6 +114,7 @@ public:
     bool removeFlight(const std::string& flightNumber);
     std::shared_ptr<Flight> getFlightById(const std::string& flightId) const;
     std::vector<std::shared_ptr<Flight>> getAllFlights() const;
+    DepartResult departFlight(const std::string& flightNumber);
 
     // --- Aircraft Management Forwarders ---
     bool addAircraft(const std::string& tailNumber,
@@ -156,6 +156,7 @@ public:
     std::shared_ptr<BookingAgent> getAgentByUsername(const std::string& username) const;
     std::shared_ptr<Administrator> getAdminByUsername(const std::string& username) const;
 
+    static constexpr int loyaltyPointsDivisor = 10;
 };
 
 }

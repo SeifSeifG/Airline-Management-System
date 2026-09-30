@@ -1,0 +1,42 @@
+1. show password hashing live + authentication
+
+2. demonstrate the admin abilities to 
+	2.1. add users
+	2.2. add aircraft
+	2.3. add 2 flights
+
+3. demonstrate passenger abilities to
+	3.1. book a flight
+	3.2. display balance (recharge later)
+	
+4. display agent ability to 
+	4.1. confirm book (get back to passenger to recharge balance)
+	4.2. search for flight details
+
+*** close an reopen to show data consistency ***
+
+5. back to passenger
+	5.1. recharge balance for user 1, redeem loyalty points for user 2 and book
+
+6. back to agent
+	6.1. confirm book for both passengers
+
+7. back to passengers
+	7.1. request check in's and display current balance and loyalty points
+
+8. back to agent
+	8.1. confirm check in
+	
+9. back to admin
+	9.1. depart the flight
+	9.2. display available reports
+
+10. back to passenger
+	10.1. display travel history
+
+
+
+
+
+
+	

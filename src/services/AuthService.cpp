@@ -30,8 +30,8 @@ bool AuthService::usernameExists(const std::string& username) const {
            agentRepo_.findByUsername(username) != nullptr;
 }
 
-std::shared_ptr<User> AuthService::login(const std::string& username, const std::string& password) const {
-    std::string attemptHash = PasswordHasher::hashPassword(password);
+std::shared_ptr<User> AuthService::login(const std::string& username, const std::string& plainText) const {
+    std::string attemptHash = PasswordHasher::hashPassword(plainText);
 
     if (auto passenger = passengerRepo_.findByUsername(username)) {
         return passenger->checkPassword(attemptHash) ? passenger : nullptr;

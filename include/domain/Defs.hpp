@@ -107,10 +107,10 @@ inline std::istream& operator>>(std::istream& is, MaintenanceStatus& status) {
 }
 
 // ReservationStatus
-enum class ReservationStatus { NoReservation ,PendingBook, ConfirmedBook, PendingCheckIn, Confirmed, Cancelled };
+enum class ReservationStatus { Missed ,PendingBook, ConfirmedBook, PendingCheckIn, Confirmed, Cancelled };
 inline std::ostream& operator<<(std::ostream& os, ReservationStatus status) {
     switch (status) {
-        case ReservationStatus::NoReservation: return os << "NoReservation";
+        case ReservationStatus::Missed: return os << "Missed";
         case ReservationStatus::PendingBook:   return os << "PendingBook";
         case ReservationStatus::ConfirmedBook: return os << "ConfirmedBook";
         case ReservationStatus::PendingCheckIn: return os << "PendingCheckIn";
@@ -122,7 +122,7 @@ inline std::ostream& operator<<(std::ostream& os, ReservationStatus status) {
 inline std::istream& operator>>(std::istream& is, ReservationStatus& status) {
     std::string token;
     if (is >> token) {
-        if (token == "NoReservation")        status = ReservationStatus::NoReservation;
+        if (token == "Missed")        status = ReservationStatus::Missed;
         else if (token == "PendingBook")  status = ReservationStatus::PendingBook;
         else if (token == "ConfirmedBook")  status = ReservationStatus::ConfirmedBook;
         else if (token == "PendingCheckIn")  status = ReservationStatus::PendingCheckIn;
@@ -174,6 +174,9 @@ inline std::istream& operator>>(std::istream& is, PaymentMethod& method) {
     }
     return is;
 }
+
+
+enum class DepartResult { Success, FlightNotFound, AircraftNotFound, AircraftNotAirworthy, AlreadyDeparted};
 
 template <typename T>
 std::string toString(const T& value) {

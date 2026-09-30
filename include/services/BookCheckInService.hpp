@@ -39,7 +39,8 @@ public:
     std::vector<std::shared_ptr<BookingRequest>> getAllBookingRequests() const;
     std::vector<std::shared_ptr<BookingRequest>> getBookingRequestsForPassenger(const std::shared_ptr<Passenger>& passenger) const;
     PaymentStatus processPayment(const std::shared_ptr<BookingRequest>& bookingReq);
-    bool confirmBookingRequest(const std::string& bookingRequestId); // called to modify the request itself
+    void refundPassenger(std::shared_ptr<Passenger> p, int seatPrice);
+    RequestReply confirmBookingRequest(const std::string& bookingRequestId); // called to modify the request itself
 
     std::shared_ptr<CheckInRequest> createCheckInRequest( // called to modify passenger & the app
         const std::shared_ptr<Passenger>& passenger,
@@ -48,6 +49,8 @@ public:
     std::vector<std::shared_ptr<CheckInRequest>> getAllCheckInRequests() const;
     std::vector<std::shared_ptr<CheckInRequest>> getCheckInRequestsForPassenger(const std::shared_ptr<Passenger>& passenger) const;
     bool confirmCheckInRequest(const std::string& bookingRequestId); // called to modify the request itself
+
+    void resolveRequestsForDepartedFlight(const std::shared_ptr<Flight>& flight);
 
     std::string generateBookingId();
     std::string generateCheckInId();

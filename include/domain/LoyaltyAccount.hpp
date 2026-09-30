@@ -9,7 +9,6 @@ public:
     void earnPoints(int points);
     bool redeem(int points);
     int getPoints() const;
-
 };
 
 }  // namespace airline

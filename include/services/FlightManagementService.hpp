@@ -7,16 +7,20 @@
 #include "domain/Flight.hpp"
 #include "persistence/AircraftRepo.hpp"
 #include "persistence/FlightRepo.hpp"
+#include "BookCheckInService.hpp"
+
 
 namespace airline {
 
-class FlightSchedulingService {
+class FlightManagementService {
 private:
     FlightRepository& flightRepo_;
     AircraftRepository& aircraftRepo_;
+    BookingService& bookingService_;
 
 public:
-    FlightSchedulingService(FlightRepository& flightRepo, AircraftRepository& aircraftRepo);
+    FlightManagementService(FlightRepository& flightRepo, AircraftRepository& aircraftRepo,
+                        BookingService& bookingService);
 
     bool addFlight(const std::string& flightNumber,
                 const std::string& origin,
@@ -31,6 +35,7 @@ public:
 
     std::shared_ptr<Flight> getFlightById(const std::string& flightNumber) const;
     std::vector<std::shared_ptr<Flight>> getAllFlights() const;
+    DepartResult departFlight(const std::string& flightNumber);
 };
 
 } // namespace airline

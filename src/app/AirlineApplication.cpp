@@ -39,8 +39,8 @@ void AirlineApplication::saveToFile(const std::string& filePath) const {
     Saver::saveToJson(*this, filePath);
 }
 
-bool AirlineApplication::login(const std::string& username, const std::string& password) {
-    currentUser_ = authService_.login(username, password);
+bool AirlineApplication::login(const std::string& username, const std::string& plainPassword) {
+    currentUser_ = authService_.login(username, plainPassword);
     return currentUser_ != nullptr;
 }
 
@@ -85,7 +85,7 @@ std::vector<std::shared_ptr<BookingRequest>> AirlineApplication::getBookingReque
     return bookingService_.getBookingRequestsForPassenger(passenger);
 }
 
-bool AirlineApplication::confirmBookingRequest(const std::string& bookingRequestId){
+RequestReply AirlineApplication::confirmBookingRequest(const std::string& bookingRequestId){
     return bookingService_.confirmBookingRequest(bookingRequestId);
 }
 
@@ -143,6 +143,10 @@ std::vector<std::shared_ptr<Flight>> AirlineApplication::getAllFlights() const {
     return flightService_.getAllFlights();
 }
 
+DepartResult AirlineApplication::departFlight(const std::string& flightNumber){
+    return flightService_.departFlight(flightNumber);
+}  
+
 // --- Aircraft Management Forwarders ---
 bool AirlineApplication::addAircraft(const std::string& tailNumber,
                                       const std::string& model,
@@ -199,17 +203,18 @@ bool AirlineApplication::addUser(Role roleChoice,
                                  const std::string& phone,
                                  int balance) {
     contactInfo contact{email, phone};
+    std::string hashedPassword = PasswordHasher::hashPassword(password);
     switch (roleChoice) {
         case Role::Administrator: { // Administrator
-            auto admin     = std::make_shared<Administrator>(name, contact, username, password);
+            auto admin     = std::make_shared<Administrator>(name, contact, username, hashedPassword);
             return userAdminService_.addUser(admin);
         }
         case Role::BookingAgent: { // Booking Agent
-            auto agent     = std::make_shared<BookingAgent>(name, contact, username, password);
+            auto agent     = std::make_shared<BookingAgent>(name, contact, username, hashedPassword);
             return userBookingAgentService_.addUser(agent);
         }
         case Role::Passenger: { // Passenger
-            auto passenger = std::make_shared<Passenger>(name, contact, username, password, balance);
+            auto passenger = std::make_shared<Passenger>(name, contact, username, hashedPassword, balance);
             return userPassengerService_.addUser(passenger);
         }
         default:

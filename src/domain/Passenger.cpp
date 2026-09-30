@@ -59,6 +59,7 @@ bool Passenger::makePayment(int deduction){
         return false;
     }
     balance_ -= deduction;
+    loyaltyAccount_->earnPoints(deduction);
     return true;
 }
 
@@ -102,6 +103,19 @@ void Passenger::addCheckInReq(std::shared_ptr<CheckInRequest> request) {
     if (request) {
         checkInRequests_.push_back(std::move(request));
     }
+}
+
+void Passenger::removeCheckInReq(std::shared_ptr<CheckInRequest> request) {
+    if (!request) return;
+
+    checkInRequests_.erase(
+        std::remove_if(checkInRequests_.begin(), checkInRequests_.end(),
+            [&request](const std::shared_ptr<CheckInRequest>& req) {
+                // Match by pointer comparison or by Request ID
+                return req && (req == request);
+            }),
+        checkInRequests_.end()
+    );
 }
 
 std::vector<std::shared_ptr<CheckInRequest>>& Passenger::getCheckInRequests() {

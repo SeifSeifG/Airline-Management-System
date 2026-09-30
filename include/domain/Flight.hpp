@@ -53,8 +53,9 @@ public:
     const std::vector<std::weak_ptr<FlightAttendant>> getFAs() const;
     const std::vector<std::weak_ptr<Pilot>> getPilots() const;
 
-    void setOrigin(std::string origin);
-    void setDestination(std::string destination);
+    void setFlightNumeber(const std::string& flightNumber);
+    void setOrigin(const std::string& origin);
+    void setDestination(const std::string& destination);
     void setDate(const Date& date);
     void setDuration(float duration);
     void setStatus(FlightStatus status);

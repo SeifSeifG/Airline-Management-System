@@ -13,22 +13,18 @@ private:
     float getFloatInput(const std::string& prompt);
     std::string getStringInput(const std::string& prompt);
 
-    // Role Selection & Login Routines
+    // entry points to any role account
     void showRoleMenu();
-    void handleAdminLogin();
-    void handleAgentLogin();
-    void handlePassengerLogin();
-
-    // Role Main Menus
-    void showAgentMenu();
-    void showPassengerMenu();
+        void handleAdminLogin();
+        void handleAgentLogin();
+        void handlePassengerLogin();
     
-    // --- Administrator Handlers & Sub-Menus ---
+    // --- Administrator Handlers ---
     void showAdminMenu();
         void showManageFlightsMenu();
             void handleAddFlight();
             void handleUpdateFlight();
-                void handleflightDetailUpdate(std::shared_ptr<Flight> flight);
+                void handleflightDetailUpdate(const std::shared_ptr<Flight>& flight);
                 void handleAssignCrew(const std::shared_ptr<Flight>& flight);
             void handleRemoveFlight();
             void handleViewAllFlights();
@@ -51,15 +47,18 @@ private:
             void handleUserActivityReport();
 
     // --- Booking Agent Handlers ---
-    void handleAgentSearchFlights();
-    void handleAgentBookConfirm();
-    void handleAgentCheckInConfirm();
-    void handleCancelReservation();
+    void showAgentMenu();
+        void handleAgentSearchFlights();
+        void handleAgentBookConfirm();
+        void handleAgentCheckInConfirm();
+        void handleCancelReservation();
 
     // --- Passenger Handlers ---
-    void handlePassengerSearchFlights();
-    void handleViewMyReservations();
-    void handleCheckIn();
+    void showPassengerMenu();
+        void handlePassengerSearchFlights();
+        void handleViewMyReservations();
+        void handleCheckIn();
+        void handleRechargeBalance();
 public:
     explicit ConsoleUI(AirlineApplication& app);
     void run();

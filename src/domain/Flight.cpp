@@ -47,8 +47,9 @@ const CrewRegulations& Flight::getRegulations() const {return regulations_;}
 const std::vector<std::weak_ptr<FlightAttendant>> Flight::getFAs() const {return flightAtts_;}
     const std::vector<std::weak_ptr<Pilot>> Flight::getPilots() const {return pilots_;}
 
-void Flight::setOrigin(std::string origin){ origin_ = origin; }
-void Flight::setDestination(std::string destination) { destination_ = destination; }
+void Flight::setFlightNumeber(const std::string& flightNumber){ flightNumber_ = flightNumber; }
+void Flight::setOrigin(const std::string& origin){ origin_ = origin; }
+void Flight::setDestination(const std::string& destination) { destination_ = destination; }
 void Flight::setDate(const Date& date) { date_ = date; }
 void Flight::setDuration(float duration) { duration_ = duration; }
 void Flight::setStatus(FlightStatus status) { status_ = status; }
@@ -84,11 +85,12 @@ bool Flight::isRegulationCompliant(std::shared_ptr<CrewMember> crewMember) {
         return false;
     }
     return crewMember->getFlightHours() >= this->regulations_.minFlightHours;
+    // 400 >= 415.5 ? -> false
 }
 
 
 bool Flight::assignCrewMember(std::shared_ptr<CrewMember> crew){
-    if (!crew || !isRegulationCompliant(crew)) {
+    if (!isRegulationCompliant(crew)) {
         return false;
     }
 
@@ -103,7 +105,6 @@ bool Flight::assignCrewMember(std::shared_ptr<CrewMember> crew){
         crew->setAvailable(false);
         return true;
     }
-
 }
 
 bool Flight::removeCrewMember(const std::string& licenseId) {

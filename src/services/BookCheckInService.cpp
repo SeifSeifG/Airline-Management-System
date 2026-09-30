@@ -108,7 +108,6 @@ std::vector<std::shared_ptr<BookingRequest>> BookingService::getBookingRequestsF
     return results;
 }
 
-
 PaymentStatus BookingService::processPayment(const std::shared_ptr<BookingRequest>& bookingReq){
     auto passenger = bookingReq->passenger.lock();
     auto flight = bookingReq->flight.lock();
@@ -118,55 +117,116 @@ PaymentStatus BookingService::processPayment(const std::shared_ptr<BookingReques
     } else {
         return PaymentStatus::Failed;
     }
-
 }
 
-bool BookingService::confirmBookingRequest(const std::string& bookingRequestId) {
-    // 1. Locate the requested BookingRequest by ID
+void BookingService::refundPassenger(std::shared_ptr<Passenger> passnger, int seatPrice){
+    passnger->rechargeBalance(seatPrice);
+}
+
+RequestReply BookingService::confirmBookingRequest(const std::string& bookingRequestId) {
+    RequestReply reply{
+        .idFound = true,
+        .payStatus = PaymentStatus::Completed
+    };
+
+    // 1. Check if the request exists in bookingRequests_ and is already confirmed
     auto it = std::find_if(bookingRequests_.begin(), bookingRequests_.end(),
         [&bookingRequestId](const std::shared_ptr<BookingRequest>& req) {
             return req && req->id == bookingRequestId;
     });
 
-    if (it == bookingRequests_.end()) {
-        return false; // Request ID not found
+    // check if it exists
+    if (it == bookingRequests_.end()){
+        reply.idFound = false; // Request ID not found
+        return reply;
     }
 
     auto bookingReq = *it;
 
-    auto passenger = bookingReq->passenger.lock();
-    auto flight    = bookingReq->flight.lock();
+    // check if this request is already confirmed
+    if (bookingReq->status == ReservationStatus::ConfirmedBook) {
+        RequestReply reply;
+        reply.idFound = true;
+        reply.payStatus = PaymentStatus::Completed;
+        return reply;
+    }
+    
+    auto passenger  = bookingReq->passenger.lock();
+    auto flight     = bookingReq->flight.lock();
+
+    // Helper lambda: safely extracts details and inserts into finishedRequests_ (if need be) without duplicates
+    auto recordFinishedRequest = [&](ReservationStatus resStatus, PaymentStatus payStatus) {
+        std::string pId       = passenger ? passenger->getId()   : "N/A";
+        std::string pName     = passenger ? passenger->getName() : "Unknown Passenger";
+        std::string flightNum = flight    ? flight->getFlightNumber() : "N/A";
+        std::string origin    = flight    ? flight->getOrigin()       : "N/A";
+        std::string dest      = flight    ? flight->getDestination()  : "N/A";
+        std::string depDate   = flight    ? toString(flight->getDate()) : "N/A";
+
+        // Remove any existing record for this request ID to avoid duplicates
+        finishedRequests_.erase(
+            std::remove_if(finishedRequests_.begin(), finishedRequests_.end(),
+                [&bookingReq](const std::shared_ptr<FinishedRequest>& rec) {
+                    return rec && rec->checkInId == bookingReq->id;
+                }),
+            finishedRequests_.end()
+        );
+
+        // Record the updated outcome
+        finishedRequests_.push_back(std::make_shared<FinishedRequest>(FinishedRequest{
+            .checkInId         = bookingReq->id,
+            .passengerId       = pId,
+            .passengerName     = pName,
+            .flightNumber      = flightNum,
+            .origin            = origin,
+            .destination       = dest,
+            .departureDate     = depDate,
+            .seatClass         = bookingReq->seatClass,
+            .price             = bookingReq->price,
+            .reservationStatus = resStatus,
+            .paymentStatus     = payStatus
+        }));
+    };
+
+    // Check seat availability
     auto seatId = flight->findSeat(bookingReq->seatClass);
 
-    // 2. Process Payment (or seats no longer available at confirmation time)
-    if (processPayment(bookingReq) != PaymentStatus::Completed || !seatId) {
+    // 1. No seats available for required seat class
+    if (!seatId) {
         bookingReq->status = ReservationStatus::Cancelled;
+        
+        refundPassenger(passenger, flight->getPriceByClass(bookingReq->seatClass));
 
-        // Record failed request in Finished Requests
-        auto finishedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
-            .checkInId    = bookingReq->id,
-            .passengerId  = passenger ? passenger->getId() : "",
-            .passengerName= passenger ? passenger->getName() : "",
-            .flightNumber = flight ? flight->getFlightNumber() : "",
-            .origin       = flight ? flight->getOrigin() : "",
-            .destination  = flight ? flight->getDestination() : "",
-            .departureDate= flight ? toString(flight->getDate()) : "",
-            .seatClass    = bookingReq->seatClass,
-            .price        = bookingReq->price,
-            .reservationStatus  = ReservationStatus::Confirmed,
-            .paymentStatus = seatId ? PaymentStatus::Failed : PaymentStatus::Pending // mark the difference
-        });
-
-        finishedRequests_.push_back(finishedRecord);
-        return false;
+        reply.payStatus = PaymentStatus::Pending;
+        recordFinishedRequest(ReservationStatus::Cancelled, PaymentStatus::Pending);
+        return reply;
     }
 
-    // 3. Assign seat after payment succeeds
+    // 2. Process Payment
+    if (processPayment(bookingReq) != PaymentStatus::Completed) {
+        bookingReq->status = ReservationStatus::PendingBook;
+
+        reply.payStatus = PaymentStatus::Failed;
+        recordFinishedRequest(ReservationStatus::PendingBook, PaymentStatus::Failed);
+        return reply;
+    }
+
+    // 3. Payment succeeded: Assign seat
     flight->assignSeat(*seatId, passenger);
 
     // 4. Mark booking request as confirmed
-    bookingReq->status = ReservationStatus::ConfirmedBook; 
-    return true;
+    bookingReq->status = ReservationStatus::ConfirmedBook;
+
+    // Remove any previous failed attempt record now that confirmation succeeded
+    finishedRequests_.erase(
+        std::remove_if(finishedRequests_.begin(), finishedRequests_.end(),
+            [&bookingReq](const std::shared_ptr<FinishedRequest>& rec) {
+                return rec && rec->checkInId == bookingReq->id;
+            }),
+        finishedRequests_.end()
+    );
+
+    return reply;
 }
 
 std::shared_ptr<CheckInRequest> BookingService::createCheckInRequest(
@@ -195,7 +255,7 @@ std::shared_ptr<CheckInRequest> BookingService::createCheckInRequest(
     // 1. Remove req from the passenger's booking requests list
     passenger->removeBookingReq(req);
 
-    // 2. Remove req from BookingService's internal booking list (if maintained)
+    // 2. Remove req from BookingService's internal booking list
     bookingRequests_.erase(
         std::remove(bookingRequests_.begin(), bookingRequests_.end(), req),
         bookingRequests_.end()
@@ -234,46 +294,161 @@ bool BookingService::confirmCheckInRequest(const std::string& checkInRequestId) 
         return false;
     }
 
+    // 2. Update check-in request status
     auto checkInReq = *it;
     checkInReq->status = ReservationStatus::Confirmed;
-    auto passenger = checkInReq->passenger.lock();
-    auto flight    = checkInReq->flight.lock();
-
-    // 2. Add to Passenger's Travel History
-    if (passenger && flight) {
-        TravelHistory history;
-        history.flightNumber = flight->getFlightNumber();
-        history.date         = toString(flight->getDate());
-        history.origin       = flight->getOrigin();
-        history.destination  = flight->getDestination();
-        history.seatClass    = checkInReq->seatClass;
-        history.price        = checkInReq->price;
-
-        passenger->addTravelHistory(history);
-        passenger->earnLoyaltyPoints(flight->getPriceByClass(checkInReq->seatClass));
-    }
-
-    // 3. Create FinishedRequest snapshot for reporting
-    auto finishedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
-            .checkInId    = checkInReq->id,
-            .passengerId  = passenger ? passenger->getId() : "",
-            .passengerName= passenger ? passenger->getName() : "",
-            .flightNumber = flight ? flight->getFlightNumber() : "",
-            .origin       = flight ? flight->getOrigin() : "",
-            .destination  = flight ? flight->getDestination() : "",
-            .departureDate= flight ? toString(flight->getDate()) : "",
-            .seatClass    = checkInReq->seatClass,
-            .price        = checkInReq->price,
-            .reservationStatus  = ReservationStatus::Confirmed
-    });
-
-
-    finishedRequests_.push_back(finishedRecord);
-
-    // 4. Remove processed check-in request from active vector
-    checkInRequests_.erase(it);
 
     return true;
+}
+
+void BookingService::resolveRequestsForDepartedFlight(const std::shared_ptr<Flight>& flight) {
+    if (!flight) return;
+
+    const std::string flightNum = flight->getFlightNumber();
+
+    // ---------------------------------------------------------------------
+    // 1. Resolve Booking Requests (Pending / ConfirmedBook -> Confirmed or Missed)
+    // ---------------------------------------------------------------------
+    for (auto& req : bookingRequests_) {
+        if (!req) continue;
+
+        auto reqFlight = req->flight.lock();
+        if (reqFlight->getFlightNumber() != flightNum) {
+            continue;
+        }
+
+        auto passenger = req->passenger.lock();
+        std::string passengerId   = passenger->getId();
+        std::string passengerName = passenger->getName();
+
+        // Remove existing finished record with matching ID if re-processing
+        auto eraseIt = std::remove_if(
+            finishedRequests_.begin(),
+            finishedRequests_.end(),
+            [&req](const std::shared_ptr<FinishedRequest>& rec) {
+                return rec && rec->checkInId == req->id;
+        });
+
+        finishedRequests_.erase(eraseIt, finishedRequests_.end());
+
+        // Confirmed / Paid requests -> Move to Finished Requests as Confirmed
+        if (req->status == ReservationStatus::Confirmed) {
+            auto finishedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
+                req->id,
+                passengerId,
+                passengerName,
+                flight->getFlightNumber(),
+                flight->getOrigin(),
+                flight->getDestination(),
+                toString(flight->getDate()),
+                req->seatClass,
+                req->price,
+                ReservationStatus::Confirmed,
+                PaymentStatus::Completed
+            });
+            finishedRequests_.push_back(finishedRecord);
+        }  else if (req->status != ReservationStatus::Cancelled) {  // Incomplete / Pending requests at departure time -> Mark as Missed
+            req->status = ReservationStatus::Missed;
+
+            auto missedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
+                req->id,
+                passengerId,
+                passengerName,
+                flight->getFlightNumber(),
+                flight->getOrigin(),
+                flight->getDestination(),
+                toString(flight->getDate()),
+                req->seatClass,
+                req->price,
+                ReservationStatus::Missed,
+                PaymentStatus::Pending
+            });
+            finishedRequests_.push_back(missedRecord);
+        } else { // they cancelled it on their own
+            req->status = ReservationStatus::Cancelled;
+
+            auto missedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
+                req->id,
+                passengerId,
+                passengerName,
+                flight->getFlightNumber(),
+                flight->getOrigin(),
+                flight->getDestination(),
+                toString(flight->getDate()),
+                req->seatClass,
+                req->price,
+                ReservationStatus::Cancelled,
+                PaymentStatus::Refunded
+            });
+            finishedRequests_.push_back(missedRecord);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // 2. Resolve Check-In Requests -> Travel History & Finished Registry
+    // ---------------------------------------------------------------------
+    for (auto it = checkInRequests_.begin(); it != checkInRequests_.end(); ) {
+        auto checkInReq = *it;
+        if (!checkInReq) {
+            ++it;
+            continue;
+        }
+
+        auto reqFlight = checkInReq->flight.lock();
+        if (!reqFlight || reqFlight->getFlightNumber() != flightNum) {
+            ++it;
+            continue;
+        }
+
+        auto passenger = checkInReq->passenger.lock();
+        std::string passengerId   = passenger ? passenger->getId()   : "N/A";
+        std::string passengerName = passenger ? passenger->getName() : "Unknown Passenger";
+
+        if (checkInReq->status == ReservationStatus::Confirmed) {
+            // A) Update Passenger's Travel History and Loyalty Points
+            if (passenger) {
+                TravelHistory history;
+                history.flightNumber = flight->getFlightNumber();
+                history.date         = toString(flight->getDate());
+                history.origin       = flight->getOrigin();
+                history.destination  = flight->getDestination();
+                history.seatClass    = checkInReq->seatClass;
+                history.price        = checkInReq->price;
+
+                passenger->removeCheckInReq(checkInReq);
+                passenger->addTravelHistory(history);
+                passenger->earnLoyaltyPoints(flight->getPriceByClass(checkInReq->seatClass));
+            }
+
+            // B) Upsert into finishedRequests_
+            auto eraseIt = std::remove_if(
+                finishedRequests_.begin(),
+                finishedRequests_.end(),
+                [&checkInReq](const std::shared_ptr<FinishedRequest>& rec) {
+                    return rec && rec->checkInId == checkInReq->id;
+                }
+            );
+            finishedRequests_.erase(eraseIt, finishedRequests_.end());
+
+            auto finishedRecord = std::make_shared<FinishedRequest>(FinishedRequest{
+                checkInReq->id,
+                passengerId,
+                passengerName,
+                flight->getFlightNumber(),
+                flight->getOrigin(),
+                flight->getDestination(),
+                toString(flight->getDate()),
+                checkInReq->seatClass,
+                checkInReq->price,
+                ReservationStatus::Confirmed,
+                PaymentStatus::Completed
+            });
+            finishedRequests_.push_back(finishedRecord);
+        }
+
+        // Erase processed check-in request from active vector
+        it = checkInRequests_.erase(it);
+    }
 }
 
 void BookingService::initializeNextId() {
