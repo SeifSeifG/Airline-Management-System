@@ -96,7 +96,7 @@ single diagram of the whole project is unreadable.
 ![Flight and booking]<img width="1263" height="3100" alt="flight_booking" src="https://github.com/user-attachments/assets/ba1a46f9-0c44-4aa0-a744-f5fb7b99e5d1" />
 ![Persistence]<img width="2426" height="454" alt="persistence" src="https://github.com/user-attachments/assets/a28db61b-5b66-4a67-9531-976fbe4723dd" />
 ![Services]<img width="4096" height="1130" alt="services" src="https://github.com/user-attachments/assets/e0aef03d-478d-4108-ae99-9c02adaf11bf" />
-![Application] 
+![Application] <img width="2715" height="2201" alt="application" src="https://github.com/user-attachments/assets/4a27dde2-9ed7-427c-a0cc-a5c63be61c63" />
 
 ### Regenerating the diagrams
 
