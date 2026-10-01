@@ -87,16 +87,16 @@ single diagram of the whole project is unreadable.
 | Diagram | Shows |
 |---|---|
 | `people` | The `Person` hierarchy (users and crew) and `LoyaltyAccount` |
-| `flight_booking` | Flight, aircraft, seat layout, maintenance, booking/check-in requests, and `Passenger` |
+| `flight_booking` | Flight, aircraft, seat layout, booking/check-in requests, and `Passenger` |
 | `persistence` | `Repository<T>` and its concrete repositories |
 | `services` | The service classes and the repositories they depend on |
 | `application` | `AirlineApplication` as composition root, with `ConsoleUI`, `Loader`, and `Saver` |
 
-![People](diagrams/people.png)
-![Flight and booking](diagrams/flight_booking.png)
-![Persistence](diagrams/persistence.png)
-![Services](diagrams/services.png)
-![Application](diagrams/application.png)
+![People] <img width="1219" height="1326" alt="people" src="https://github.com/user-attachments/assets/5cb6c17e-cfaf-42dc-ab10-b880994168ed" />
+![Flight and booking]<img width="1263" height="3100" alt="flight_booking" src="https://github.com/user-attachments/assets/ba1a46f9-0c44-4aa0-a744-f5fb7b99e5d1" />
+![Persistence]<img width="2426" height="454" alt="persistence" src="https://github.com/user-attachments/assets/a28db61b-5b66-4a67-9531-976fbe4723dd" />
+![Services]<img width="4096" height="1130" alt="services" src="https://github.com/user-attachments/assets/e0aef03d-478d-4108-ae99-9c02adaf11bf" />
+![Application] 
 
 ### Regenerating the diagrams
 
