@@ -1,0 +1,229 @@
+@startuml
+class "airline::AuthService" as C_0016335625681874205807
+class C_0016335625681874205807 {
++AuthService() : void
+..
++login() const : std::shared_ptr<User>
++registerPassenger() : std::shared_ptr<Passenger>
+-usernameExists() const : bool
+__
+-adminRepo_ : UserRepository<Administrator> &
+-agentRepo_ : UserRepository<BookingAgent> &
+-passengerRepo_ : PassengerRepository &
+}
+class "airline::BookingService" as C_0006775178193535760858
+class C_0006775178193535760858 {
++BookingService() : void
+..
++confirmBookingRequest() : RequestReply
++confirmCheckInRequest() : bool
++createBookingRequest() : std::shared_ptr<BookingRequest>
++createCheckInRequest() : std::shared_ptr<CheckInRequest>
++generateBookingId() : std::string
++generateCheckInId() : std::string
++getAllBookingRequests() const : std::vector<std::shared_ptr<BookingRequest>>
++getAllCheckInRequests() const : std::vector<std::shared_ptr<CheckInRequest>>
++getBookingRequestsForPassenger() const : std::vector<std::shared_ptr<BookingRequest>>
++getCheckInRequestsForPassenger() const : std::vector<std::shared_ptr<CheckInRequest>>
++initializeNextId() : void
++isDuplicatedBookingReq() : bool
++processPayment() : PaymentStatus
++refundPassenger() : void
++resolveRequestsForDepartedFlight() : void
++searchFlights() const : std::vector<std::shared_ptr<Flight>>
+__
+-bookingRequests_ : std::vector<std::shared_ptr<BookingRequest>> &
+-checkInRequests_ : std::vector<std::shared_ptr<CheckInRequest>> &
+-finishedRequests_ : std::vector<std::shared_ptr<FinishedRequest>> &
+-flightRepo_ : FlightRepository &
+{static} -nextBookingId_ : int
+{static} -nextCheckInId_ : int
+}
+class "airline::CrewService" as C_0008662898703248320632
+class C_0008662898703248320632 {
++CrewService() : void
+..
++assignCrewMember() : bool
++getAvailableFlightAttendants() const : std::vector<std::shared_ptr<FlightAttendant>>
++getAvailablePilots() const : std::vector<std::shared_ptr<Pilot>>
++getFAById() const : std::shared_ptr<FlightAttendant>
++getPilotById() const : std::shared_ptr<Pilot>
+__
+-flightAtts_ : CrewRepository &
+-pilots_ : CrewRepository &
+}
+class "airline::FlightManagementService" as C_0004928022153335533096
+class C_0004928022153335533096 {
++FlightManagementService() : void
+..
++addFlight() : bool
++departFlight() : DepartResult
++getAllFlights() const : std::vector<std::shared_ptr<Flight>>
++getFlightById() const : std::shared_ptr<Flight>
++removeFlight() : bool
+__
+-aircraftRepo_ : AircraftRepository &
+-flightRepo_ : FlightRepository &
+}
+class "airline::ReportingService" as C_0001513277524336026860
+class C_0001513277524336026860 {
++ReportingService() : void
+..
++generateMaintenanceReport() const : void
++generateOperationalReport() const : OperationalReportData
++generateUserActivityReport() const : void
+__
+-aircraftRepo_ : const AircraftRepository &
+-flightRepo_ : const FlightRepository &
+}
+class "airline::AircraftManagementService" as C_0016471543663562480836
+class C_0016471543663562480836 {
++AircraftManagementService() : void
+..
++addAircraft() : bool
++getAircraftByTailNumber() const : std::shared_ptr<Aircraft>
++getAllAircraft() const : std::vector<std::shared_ptr<Aircraft>>
++getAvailableAircrafts() const : std::vector<std::shared_ptr<Aircraft>>
++removeAircraft() : bool
++updateMaintenanceStatus() : bool
+__
+-aircraftRepo_ : AircraftRepository &
+}
+class "airline::AirlineApplication" as C_0015425065223532808242
+class C_0015425065223532808242 {
++AirlineApplication() : void
++~AirlineApplication() : void
+..
++addAircraft() : bool
++addFlight() : bool
++addUser() : bool
++assignCrewMember() : bool
++confirmBookingRequest() : RequestReply
++confirmCheckInRequest() : bool
++createBookingRequest() : std::shared_ptr<BookingRequest>
++createCheckInRequest() : std::shared_ptr<CheckInRequest>
++departFlight() : DepartResult
++generateBookingId() : std::string
++generateCheckInId() : std::string
++getAdminByUsername() const : std::shared_ptr<Administrator>
++getAgentByUsername() const : std::shared_ptr<BookingAgent>
++getAircraftByTailNumber() const : std::shared_ptr<Aircraft>
++getAllAircraft() const : std::vector<std::shared_ptr<Aircraft>>
++getAllBookingRequests() const : std::vector<std::shared_ptr<BookingRequest>>
++getAllCheckInRequests() const : std::vector<std::shared_ptr<CheckInRequest>>
++getAllFlights() const : std::vector<std::shared_ptr<Flight>>
++getAllUsers() const : std::vector<std::shared_ptr<User>>
++getAvailableAircrafts() const : std::vector<std::shared_ptr<Aircraft>>
++getAvailableFlightAttendants() const : std::vector<std::shared_ptr<FlightAttendant>>
++getAvailablePilots() const : std::vector<std::shared_ptr<Pilot>>
++getBookingRequestsForPassenger() const : std::vector<std::shared_ptr<BookingRequest>>
++getCheckInRequestsForPassenger() const : std::vector<std::shared_ptr<CheckInRequest>>
++getCurrentUser() const : std::shared_ptr<User>
++getFAById() const : std::shared_ptr<FlightAttendant>
++getFinishedRequests() const : const std::vector<std::shared_ptr<FinishedRequest>> &
++getFlightById() const : std::shared_ptr<Flight>
++getPassengerByUsername() const : std::shared_ptr<Passenger>
++getPilotById() const : std::shared_ptr<Pilot>
++getUserById() const : std::shared_ptr<User>
++getUserByUsername() const : std::shared_ptr<User>
++initialize() : void
++isDuplicatedBookingReq() : bool
++login() : bool
++logout() : void
++registerNewPassenger() : bool
++removeAircraft() : bool
++removeFlight() : bool
++removeUser() : bool
++saveToFile() const : void
++searchFlights() const : std::vector<std::shared_ptr<Flight>>
+__
+-admins_ : UserRepository<Administrator>
+-agentRepo_ : UserRepository<BookingAgent>
+-aircraftRepo_ : AircraftRepository
+-bookingRequests_ : std::vector<std::shared_ptr<BookingRequest>>
+-checkInRequests_ : std::vector<std::shared_ptr<CheckInRequest>>
+-currentUser_ : std::shared_ptr<User>
+-finishedRequests_ : std::vector<std::shared_ptr<FinishedRequest>>
+-flightAtts_ : CrewRepository
+-flightRepo_ : FlightRepository
+{static} +loyaltyPointsDivisor : const int
+-passengerRepo_ : PassengerRepository
+-pilots_ : CrewRepository
+-userAdminService_ : UserService<Administrator>
+-userBookingAgentService_ : UserService<BookingAgent>
+-userPassengerService_ : UserService<Passenger>
+}
+class "airline::ConsoleUI" as C_0005024944416019848765
+class C_0005024944416019848765 {
++ConsoleUI() : void
+..
+-getFloatInput() : float
+-getIntInput() : int
+-getStringInput() : std::string
+-handleAddAircraft() : void
+-handleAddFlight() : void
+-handleAddUser() : void
+-handleAdminLogin() : void
+-handleAgentBookConfirm() : void
+-handleAgentCheckInConfirm() : void
+-handleAgentLogin() : void
+-handleAgentSearchFlights() : void
+-handleAssignCrew() : void
+-handleCancelReservation() : void
+-handleCheckIn() : void
+-handleMaintenanceReport() : void
+-handleOperationalReport() : void
+-handlePassengerLogin() : void
+-handlePassengerSearchFlights() : void
+-handleRechargeBalance() : void
+-handleRemoveAircraft() : void
+-handleRemoveFlight() : void
+-handleRemoveUser() : void
+-handleUpdateAircraft() : void
+-handleUpdateFlight() : void
+-handleUpdateUser() : void
+-handleUserActivityReport() : void
+-handleViewAllAircraft() : void
+-handleViewAllFlights() : void
+-handleViewAllUsers() : void
+-handleViewMyReservations() : void
+-handleflightDetailUpdate() : void
++run() : void
+-showAdminMenu() : void
+-showAgentMenu() : void
+-showGenerateReportsMenu() : void
+-showManageAircraftMenu() : void
+-showManageFlightsMenu() : void
+-showManageUsersMenu() : void
+-showPassengerMenu() : void
+-showRoleMenu() : void
+__
+-running_ : bool
+}
+class "airline::Saver" as C_0010749341442570032774
+class C_0010749341442570032774 {
+{static} +saveToJson() : void
+__
+}
+class "airline::Loader" as C_0015203559308368094745
+class C_0015203559308368094745 {
+{static} +loadFromJson() : void
+__
+}
+C_0004928022153335533096 --> C_0006775178193535760858 : -bookingService_
+C_0015425065223532808242 o-- C_0016335625681874205807 : -authService_
+C_0015425065223532808242 o-- C_0006775178193535760858 : -bookingService_
+C_0015425065223532808242 o-- C_0004928022153335533096 : -flightService_
+C_0015425065223532808242 o-- C_0016471543663562480836 : -aircraftService_
+C_0015425065223532808242 o-- C_0008662898703248320632 : -crewService_
+C_0015425065223532808242 o-- C_0001513277524336026860 : -reportingService_
+C_0015425065223532808242 <.. C_0005024944416019848765 : +<<friend>>
+C_0015425065223532808242 <.. C_0010749341442570032774 : +<<friend>>
+C_0015425065223532808242 <.. C_0015203559308368094745 : +<<friend>>
+C_0005024944416019848765 --> C_0015425065223532808242 : -app_
+C_0010749341442570032774 ..> C_0015425065223532808242
+C_0015203559308368094745 ..> C_0015425065223532808242
+
+'Generated with clang-uml, version 0.6.3
+'LLVM version Ubuntu clang version 18.1.3 (1ubuntu1)
+@enduml

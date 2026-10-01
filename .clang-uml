@@ -1,5 +1,5 @@
 compilation_database_dir: .
-output_directory: diagrams
+output_directory: UML
 diagrams:
   people:
     type: class
@@ -85,15 +85,18 @@ diagrams:
     generate_method_arguments: none
     include_relations_also_as_members: false
     include:
-      paths:
-        - include/app
-        - include/ui
-        - include/services
       elements:
+        - airline::AirlineApplication
+        - airline::ConsoleUI
         - airline::Loader
         - airline::Saver
+        - airline::AuthService
+        - airline::BookingService
+        - airline::FlightManagementService
+        - airline::AircraftManagementService
+        - airline::CrewService
+        - airline::ReportingService
+        - airline::UserService
     exclude:
-      elements:
-        - airline::PasswordHasher
       namespaces:
         - std
