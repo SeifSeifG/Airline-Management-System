@@ -1,0 +1,99 @@
+compilation_database_dir: .
+output_directory: diagrams
+diagrams:
+  people:
+    type: class
+    glob:
+      - src/domain/*.cpp
+    generate_method_arguments: none
+    include_relations_also_as_members: false
+    include:
+      elements:
+        - airline::Person
+        - airline::User
+        - airline::Administrator
+        - airline::BookingAgent
+        - airline::Passenger
+        - airline::CrewMember
+        - airline::Pilot
+        - airline::FlightAttendant
+        - airline::LoyaltyAccount
+    exclude:
+      namespaces:
+        - std
+
+  flight_booking:
+    type: class
+    glob:
+      - src/domain/*.cpp
+    generate_method_arguments: none
+    include_relations_also_as_members: false
+    include:
+      elements:
+        - airline::Flight
+        - airline::Aircraft
+        - airline::SeatLayout
+        - airline::SeatData
+        - airline::Passenger
+        - airline::BookingRequest
+        - airline::CheckInRequest
+        - airline::FinishedRequest
+        - airline::TravelHistory
+    exclude:
+      namespaces:
+        - std
+
+  persistence:
+    type: class
+    glob:
+      - src/persistence/*.cpp
+    generate_method_arguments: none
+    include_relations_also_as_members: false
+    include:
+      paths:
+        - include/persistence
+    exclude:
+      elements:
+        - airline::Loader
+        - airline::Saver
+      namespaces:
+        - std
+
+  services:
+    type: class
+    glob:
+      - src/services/*.cpp
+    generate_method_arguments: none
+    include_relations_also_as_members: false
+    include:
+      paths:
+        - include/services
+        - include/persistence
+    exclude:
+      elements:
+        - airline::PasswordHasher
+        - airline::Loader
+        - airline::Saver
+      namespaces:
+        - std
+
+  application:
+    type: class
+    glob:
+      - src/app/*.cpp
+      - src/ui/*.cpp
+    generate_method_arguments: none
+    include_relations_also_as_members: false
+    include:
+      paths:
+        - include/app
+        - include/ui
+        - include/services
+      elements:
+        - airline::Loader
+        - airline::Saver
+    exclude:
+      elements:
+        - airline::PasswordHasher
+      namespaces:
+        - std

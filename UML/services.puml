@@ -1,0 +1,214 @@
+@startuml
+class "airline::Repository<T>" as C_0001838811085646701044
+class C_0001838811085646701044 {
++~Repository() = default : void
+..
++add() : void
++contains() const : bool
++findAll() const : std::vector<std::shared_ptr<T>>
++findIf() const : std::shared_ptr<T>
++get() const : std::shared_ptr<T>
++getAll() const : std::vector<std::shared_ptr<T>>
++remove() : bool
++size() const : std::size_t
+__
+#items_ : std::unordered_map<std::string,std::shared_ptr<T>>
+}
+class "airline::UserRepository<T>" as C_0001735880270837965419
+class C_0001735880270837965419 {
++findByUsername() const : std::shared_ptr<T>
+__
+}
+class "airline::UserRepository<airline::Passenger>" as C_0005251206387859540238
+class C_0005251206387859540238 {
+__
+}
+class "airline::PassengerRepository" as C_0012183775693385439082
+class C_0012183775693385439082 {
++findWithMinLoyaltyPoints() const : std::vector<std::shared_ptr<Passenger>>
+__
+}
+class "airline::UserRepository<airline::Administrator>" as C_0016498702279801420561
+class C_0016498702279801420561 {
+__
+}
+class "airline::UserRepository<airline::BookingAgent>" as C_0004536087507895221836
+class C_0004536087507895221836 {
+__
+}
+class "airline::AuthService" as C_0016335625681874205807
+class C_0016335625681874205807 {
++AuthService() : void
+..
++login() const : std::shared_ptr<User>
++registerPassenger() : std::shared_ptr<Passenger>
+-usernameExists() const : bool
+__
+}
+class "airline::Repository<airline::Aircraft>" as C_0013109511746046304385
+class C_0013109511746046304385 {
+__
+}
+class "airline::AircraftRepository" as C_0010355040304455525886
+class C_0010355040304455525886 {
++findAirworthy() const : std::vector<std::shared_ptr<Aircraft>>
++findByMinBusinessClassCapacity() const : std::vector<std::shared_ptr<Aircraft>>
++findByMinEconomyClassCapacity() const : std::vector<std::shared_ptr<Aircraft>>
++findByMinFirstClassCapacity() const : std::vector<std::shared_ptr<Aircraft>>
+__
+}
+class "airline::Repository<airline::Flight>" as C_0005256922587403469032
+class C_0005256922587403469032 {
+__
+}
+class "airline::FlightRepository" as C_0012230281758344287073
+class C_0012230281758344287073 {
++findAvailableFlights() const : std::vector<std::shared_ptr<Flight>>
+__
+}
+class "airline::BookingService" as C_0006775178193535760858
+class C_0006775178193535760858 {
++BookingService() : void
+..
++confirmBookingRequest() : RequestReply
++confirmCheckInRequest() : bool
++createBookingRequest() : std::shared_ptr<BookingRequest>
++createCheckInRequest() : std::shared_ptr<CheckInRequest>
++generateBookingId() : std::string
++generateCheckInId() : std::string
++getAllBookingRequests() const : std::vector<std::shared_ptr<BookingRequest>>
++getAllCheckInRequests() const : std::vector<std::shared_ptr<CheckInRequest>>
++getBookingRequestsForPassenger() const : std::vector<std::shared_ptr<BookingRequest>>
++getCheckInRequestsForPassenger() const : std::vector<std::shared_ptr<CheckInRequest>>
++initializeNextId() : void
++isDuplicatedBookingReq() : bool
++processPayment() : PaymentStatus
++refundPassenger() : void
++resolveRequestsForDepartedFlight() : void
++searchFlights() const : std::vector<std::shared_ptr<Flight>>
+__
+-bookingRequests_ : std::vector<std::shared_ptr<BookingRequest>> &
+-checkInRequests_ : std::vector<std::shared_ptr<CheckInRequest>> &
+-finishedRequests_ : std::vector<std::shared_ptr<FinishedRequest>> &
+{static} -nextBookingId_ : int
+{static} -nextCheckInId_ : int
+}
+class "airline::FlightManagementService" as C_0004928022153335533096
+class C_0004928022153335533096 {
++FlightManagementService() : void
+..
++addFlight() : bool
++departFlight() : DepartResult
++getAllFlights() const : std::vector<std::shared_ptr<Flight>>
++getFlightById() const : std::shared_ptr<Flight>
++removeFlight() : bool
+__
+}
+class "airline::AircraftManagementService" as C_0016471543663562480836
+class C_0016471543663562480836 {
++AircraftManagementService() : void
+..
++addAircraft() : bool
++getAircraftByTailNumber() const : std::shared_ptr<Aircraft>
++getAllAircraft() const : std::vector<std::shared_ptr<Aircraft>>
++getAvailableAircrafts() const : std::vector<std::shared_ptr<Aircraft>>
++removeAircraft() : bool
++updateMaintenanceStatus() : bool
+__
+}
+class "airline::Repository<airline::CrewMember>" as C_0012925984340072161810
+class C_0012925984340072161810 {
+__
+}
+class "airline::CrewRepository" as C_0004319806968565766359
+class C_0004319806968565766359 {
++findWithMinFlightHours() const : std::vector<std::shared_ptr<CrewMember>>
+__
+}
+class "airline::CrewService" as C_0008662898703248320632
+class C_0008662898703248320632 {
++CrewService() : void
+..
++assignCrewMember() : bool
++getAvailableFlightAttendants() const : std::vector<std::shared_ptr<FlightAttendant>>
++getAvailablePilots() const : std::vector<std::shared_ptr<Pilot>>
++getFAById() const : std::shared_ptr<FlightAttendant>
++getPilotById() const : std::shared_ptr<Pilot>
+__
+}
+class "airline::FlightPerformance" as C_0017898532136433084435
+class C_0017898532136433084435 {
+__
++bookingsCount : int
++flightId : std::string
++revenue : double
++status : std::string
+}
+class "airline::OperationalReportData" as C_0017219053118124222551
+class C_0017219053118124222551 {
+__
++canceled : int
++completed : int
++delayed : int
++totalReservations : int
++totalRevenue : double
++totalScheduled : int
+}
+class "airline::ReportingService" as C_0001513277524336026860
+class C_0001513277524336026860 {
++ReportingService() : void
+..
++generateMaintenanceReport() const : void
++generateOperationalReport() const : OperationalReportData
++generateUserActivityReport() const : void
+__
+}
+class "PasswordHasher" as C_0007924505290049980721
+class C_0007924505290049980721 {
+{static} +hashPassword() : std::string
+__
+}
+class "picosha2::hash256_one_by_one" as C_0001463492172203420755
+class C_0001463492172203420755 {
++hash256_one_by_one() : void
+..
++finish() : void
++get_hash_bytes<OutIter>() : void
++init() : void
++process<RaInIter>() : void
+__
+-buffer_ : std::vector<unsigned char>
+-data_length_ : unsigned long long
+-state_ : sha256_word[8]
+}
+C_0001838811085646701044 <|-- C_0001735880270837965419
+C_0005251206387859540238 ..|> C_0001735880270837965419
+C_0005251206387859540238 <|-- C_0012183775693385439082
+C_0016498702279801420561 ..|> C_0001735880270837965419
+C_0004536087507895221836 ..|> C_0001735880270837965419
+C_0016335625681874205807 --> C_0012183775693385439082 : -passengerRepo_
+C_0016335625681874205807 --> C_0016498702279801420561 : -adminRepo_
+C_0016335625681874205807 --> C_0001735880270837965419 : -adminRepo_
+C_0016335625681874205807 --> C_0004536087507895221836 : -agentRepo_
+C_0016335625681874205807 --> C_0001735880270837965419 : -agentRepo_
+C_0013109511746046304385 ..|> C_0001838811085646701044
+C_0013109511746046304385 <|-- C_0010355040304455525886
+C_0005256922587403469032 ..|> C_0001838811085646701044
+C_0005256922587403469032 <|-- C_0012230281758344287073
+C_0006775178193535760858 --> C_0012230281758344287073 : -flightRepo_
+C_0004928022153335533096 --> C_0012230281758344287073 : -flightRepo_
+C_0004928022153335533096 --> C_0010355040304455525886 : -aircraftRepo_
+C_0004928022153335533096 --> C_0006775178193535760858 : -bookingService_
+C_0016471543663562480836 --> C_0010355040304455525886 : -aircraftRepo_
+C_0012925984340072161810 ..|> C_0001838811085646701044
+C_0012925984340072161810 <|-- C_0004319806968565766359
+C_0008662898703248320632 --> C_0004319806968565766359 : -pilots_
+C_0008662898703248320632 --> C_0004319806968565766359 : -flightAtts_
+C_0017219053118124222551 o-- C_0017898532136433084435 : +flightSummaries
+C_0001513277524336026860 ..> C_0017219053118124222551
+C_0001513277524336026860 --> C_0012230281758344287073 : -flightRepo_
+C_0001513277524336026860 --> C_0010355040304455525886 : -aircraftRepo_
+
+'Generated with clang-uml, version 0.6.3
+'LLVM version Ubuntu clang version 18.1.3 (1ubuntu1)
+@enduml

@@ -1,0 +1,242 @@
+@startuml
+class "airline::SeatData" as C_0008432697354711675402
+class C_0008432697354711675402 {
++assignPassenger() : void
++freePassenger() : std::shared_ptr<Passenger>
++isOccupied() const : bool
+__
+}
+class "airline::SeatLayout" as C_0003440944064580603318
+class C_0003440944064580603318 {
++SeatLayout() = default : void
++SeatLayout() : void
+..
++addSeats() : std::optional<std::vector<SeatId_t>>
++assignSeat() : std::optional<SeatData>
++assignSeat() : std::optional<SeatData>
+-bumpCapacity() : void
+-bumpOccupied() : void
++findSeat() const : std::shared_ptr<SeatId_t>
++freeSeat() : std::shared_ptr<Passenger>
++getAllSeats() const : const std::unordered_map<SeatId_t,SeatData> &
++getAvailableSeatsPerClass() const : std::tuple<int,int,int>
++getBusinessClassCapacity() const : int
+{static} +getClassById() : std::optional<SeatClass>
++getEconomyClassCapacity() const : int
++getFirstClassCapacity() const : int
++getOccupiedBusinessClass() const : int
++getOccupiedEconomyClass() const : int
++getOccupiedFirstClass() const : int
++getTotalAssigned() const : int
++getTotalAvailable() const : int
++getTotalCapacity() const : int
+__
+-available_ : std::unordered_map<SeatClass,std::deque<SeatId_t>>
+-businessClassCapacity_ : int
+-classSeatCount_ : std::unordered_map<SeatClass,int>
+-economyClassCapacity_ : int
+-firstClassCapacity_ : int
+-occupiedBusinessClass_ : int
+-occupiedEconomyClass_ : int
+-occupiedFirstClass_ : int
+}
+class "airline::Aircraft" as C_0001540354049331133407
+class C_0001540354049331133407 {
++Aircraft() : void
+..
++addRunningHours() : void
++assignSeat() : bool
++assignSeat() : bool
++assignToFlight() : void
++findSeat() const : const std::shared_ptr<SeatId_t>
++freeSeat() : std::shared_ptr<Passenger>
++getAllSeats() const : const std::unordered_map<SeatId_t,SeatData> &
++getAvailableSeatsPerClass() const : std::tuple<int,int,int>
++getBusinessClassCapacity() const : int
++getEconomyClassCapacity() const : int
++getFirstClassCapacity() const : int
++getMaintenanceStatus() const : MaintenanceStatus
++getMaxRunningHours() const : float
++getModel() const : const std::string &
++getOccupiedBusinessClass() const : int
++getOccupiedEconomyClass() const : int
++getOccupiedFirstClass() const : int
++getRunningHours() const : float
++getTailNumber() const : const std::string &
++getTotalCapacity() const : int
++isAssigned() const : bool
++setMaintenanceStatus() : void
+__
+-assigned : bool
+-maxRunningHours_ : float
+-model_ : std::string
+-runningHours_ : float
+-status_ : MaintenanceStatus
+-tailNumber_ : std::string
+}
+class "airline::Flight" as C_0001481929267059520936
+class C_0001481929267059520936 {
++Flight() : void
++~Flight() : void
+..
++assignAircraft() : bool
++assignCrewMember() : bool
++assignSeat() : bool
++assignSeat() : bool
++findSeat() const : const std::shared_ptr<SeatId_t>
++freeSeat() : std::shared_ptr<Passenger>
++getAircraft() const : std::shared_ptr<Aircraft>
+-getAircraftOrThrow() const : std::shared_ptr<Aircraft>
++getAllSeats() const : const std::unordered_map<SeatId_t,SeatData> &
++getAvailableSeatsPerClass() const : std::tuple<int,int,int>
++getBusinessClassCapacity() const : int
++getDate() const : Date
++getDestination() const : const std::string &
++getDuration() const : float
++getEconomyClassCapacity() const : int
++getFAs() const : const std::vector<std::weak_ptr<FlightAttendant>>
++getFirstClassCapacity() const : int
++getFlightNumber() const : const std::string &
++getOccupiedBusinessClass() const : int
++getOccupiedEconomyClass() const : int
++getOccupiedFirstClass() const : int
++getOrigin() const : const std::string &
++getPilots() const : const std::vector<std::weak_ptr<Pilot>>
++getPriceByClass() const : int
++getRegulations() const : const CrewRegulations &
++getStatus() const : FlightStatus
+-isRegulationCompliant() : bool
++removeCrewMember() : bool
++setAircraft() : void
++setBasePrice() : void
++setCrewMember() : bool
++setDate() : void
++setDestination() : void
++setDuration() : void
++setFlightNumeber() : void
++setOrigin() : void
++setStatus() : void
+__
+-basePrice_ : int
+-date_ : Date
+-destination_ : std::string
+-duration_ : float
+-flightAtts_ : std::vector<std::weak_ptr<FlightAttendant>>
+-flightNumber_ : std::string
+-origin_ : std::string
+-pilots_ : std::vector<std::weak_ptr<Pilot>>
+-regulations_ : CrewRegulations
+-status_ : FlightStatus
+}
+class "airline::Passenger" as C_0015530722721803281399
+class C_0015530722721803281399 {
++Passenger() : void
++Passenger() : void
++Passenger() = deleted : void
++Passenger() noexcept : void
++~Passenger() : void
+..
++operator=() = deleted : Passenger &
++operator=() noexcept : Passenger &
+..
++addBookingReq() : void
++addCheckInReq() : void
++addTravelHistory() : void
++addTravelHistory() : void
++earnLoyaltyPoints() : void
+-generateId() : std::string
++getBalance() const : int
++getBookingRequestById() const : std::shared_ptr<BookingRequest>
++getBookingRequests() : std::vector<std::shared_ptr<BookingRequest>> &
++getBookingRequests() const : const std::vector<std::shared_ptr<BookingRequest>> &
++getCheckInRequestById() const : std::shared_ptr<CheckInRequest>
++getCheckInRequests() const : const std::vector<std::shared_ptr<CheckInRequest>> &
++getCheckInRequests() : std::vector<std::shared_ptr<CheckInRequest>> &
++getLoyaltyBalance() const : int
++getRole() const : Role
++getTravelHistory() const : const std::vector<TravelHistory> &
++makePayment() : bool
++rechargeBalance() : void
++redeemLoyaltyPoints() : bool
++removeBookingReq() : void
++removeCheckInReq() : void
+{static} +setNextId() : void
+__
+-balance_ : int
+-loyaltyAccount_ : std::unique_ptr<LoyaltyAccount>
+{static} -nextId : int
+}
+class "airline::TravelHistory" as C_0009209410971449310036
+class C_0009209410971449310036 {
+__
++date : std::string
++destination : std::string
++flightNumber : std::string
++origin : std::string
++price : int
++seatClass : SeatClass
+}
+class "airline::BookingRequest" as C_0004939562281376836221
+class C_0004939562281376836221 {
+__
++id : std::string
++price : int
++seatClass : SeatClass
++status : ReservationStatus
+}
+class "airline::FinishedRequest" as C_0005651541445856810508
+class C_0005651541445856810508 {
+__
++checkInId : std::string
++departureDate : std::string
++destination : std::string
++flightNumber : std::string
++origin : std::string
++passengerId : std::string
++passengerName : std::string
++paymentStatus : PaymentStatus
++price : int
++reservationStatus : ReservationStatus
++seatClass : SeatClass
+}
+class "airline::CheckInRequest" as C_0005664704784691863276
+class C_0005664704784691863276 {
+__
++id : std::string
++price : int
++seatClass : SeatClass
++status : ReservationStatus
+}
+class "airline::MaintenanceRecord" as C_0003487791452744781790
+class C_0003487791452744781790 {
++MaintenanceRecord() : void
+..
++getDate() const : const std::string &
++getDescription() const : const std::string &
++getTechnician() const : const std::string &
+__
+-date_ : std::string
+-description_ : std::string
+-technician_ : std::string
+}
+C_0008432697354711675402 --> C_0015530722721803281399 : +passenger
+C_0003440944064580603318 ..> C_0015530722721803281399
+C_0003440944064580603318 o-- C_0008432697354711675402 : -seats_
+C_0001540354049331133407 ..> C_0008432697354711675402
+C_0001540354049331133407 ..> C_0015530722721803281399
+C_0001540354049331133407 o-- C_0003440944064580603318 : -seatLayout_
+C_0001481929267059520936 ..> C_0008432697354711675402
+C_0001481929267059520936 ..> C_0015530722721803281399
+C_0001481929267059520936 --> C_0001540354049331133407 : -aircraft_
+C_0015530722721803281399 ..> C_0005651541445856810508
+C_0015530722721803281399 o-- C_0009209410971449310036 : -travelHistory_
+C_0015530722721803281399 o-- C_0004939562281376836221 : -bookingRequests_
+C_0015530722721803281399 o-- C_0005664704784691863276 : -checkInRequests_
+C_0004939562281376836221 --> C_0015530722721803281399 : +passenger
+C_0004939562281376836221 --> C_0001481929267059520936 : +flight
+C_0005664704784691863276 --> C_0015530722721803281399 : +passenger
+C_0005664704784691863276 --> C_0001481929267059520936 : +flight
+
+'Generated with clang-uml, version 0.6.3
+'LLVM version Ubuntu clang version 18.1.3 (1ubuntu1)
+@enduml

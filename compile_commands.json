@@ -1,0 +1,542 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/AircraftRepo.o",
+      "src/persistence/AircraftRepo.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/AircraftRepo.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/AircraftRepo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/CrewRepo.o",
+      "src/persistence/CrewRepo.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/CrewRepo.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/CrewRepo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/PassengerRepo.o",
+      "src/persistence/PassengerRepo.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/PassengerRepo.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/PassengerRepo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/Saver.o",
+      "src/persistence/Saver.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/Saver.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/Saver.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/FlightRepo.o",
+      "src/persistence/FlightRepo.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/FlightRepo.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/FlightRepo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/Loader.o",
+      "src/persistence/Loader.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/Loader.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/Loader.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/persistence/BookingRequestRepo.o",
+      "src/persistence/BookingRequestRepo.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/persistence/BookingRequestRepo.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/persistence/BookingRequestRepo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/ui/ConsoleUI.o",
+      "src/ui/ConsoleUI.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/ui/ConsoleUI.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/ui/ConsoleUI.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/app/main.o",
+      "src/app/main.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/app/main.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/app/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/app/AirlineApplication.o",
+      "src/app/AirlineApplication.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/app/AirlineApplication.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/app/AirlineApplication.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Person.o",
+      "src/domain/Person.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Person.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Person.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Flight.o",
+      "src/domain/Flight.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Flight.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Flight.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/MaintenanceRecord.o",
+      "src/domain/MaintenanceRecord.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/MaintenanceRecord.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/MaintenanceRecord.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/CrewMember.o",
+      "src/domain/CrewMember.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/CrewMember.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/CrewMember.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Aircraft.o",
+      "src/domain/Aircraft.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Aircraft.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Aircraft.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Passenger.o",
+      "src/domain/Passenger.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Passenger.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Passenger.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/FlightAttendant.o",
+      "src/domain/FlightAttendant.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/FlightAttendant.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/FlightAttendant.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Administrator.o",
+      "src/domain/Administrator.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Administrator.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Administrator.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/BookingAgent.o",
+      "src/domain/BookingAgent.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/BookingAgent.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/BookingAgent.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/Pilot.o",
+      "src/domain/Pilot.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/Pilot.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/Pilot.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/LoyaltyAccount.o",
+      "src/domain/LoyaltyAccount.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/LoyaltyAccount.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/LoyaltyAccount.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/SeatLayout.o",
+      "src/domain/SeatLayout.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/SeatLayout.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/SeatLayout.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/domain/User.o",
+      "src/domain/User.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/domain/User.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/domain/User.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/AuthService.o",
+      "src/services/AuthService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/AuthService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/AuthService.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/FlightManagementService.o",
+      "src/services/FlightManagementService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/FlightManagementService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/FlightManagementService.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/AircraftManagementService.o",
+      "src/services/AircraftManagementService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/AircraftManagementService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/AircraftManagementService.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/CrewService.o",
+      "src/services/CrewService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/CrewService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/CrewService.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/PasswordHasher.o",
+      "src/services/PasswordHasher.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/PasswordHasher.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/PasswordHasher.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/ReportingService.o",
+      "src/services/ReportingService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/ReportingService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/ReportingService.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-fsanitize=address",
+      "-Iinclude",
+      "-c",
+      "-o",
+      "build/services/BookCheckInService.o",
+      "src/services/BookCheckInService.cpp"
+    ],
+    "directory": "/home/seifseif/C++ Course/Projects/Airline Management",
+    "file": "/home/seifseif/C++ Course/Projects/Airline Management/src/services/BookCheckInService.cpp",
+    "output": "/home/seifseif/C++ Course/Projects/Airline Management/build/services/BookCheckInService.o"
+  }
+]
